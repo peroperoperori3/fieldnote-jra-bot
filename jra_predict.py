@@ -55,6 +55,11 @@ TIE_JITTER_TRIGGER = float(os.environ.get("TIE_JITTER_TRIGGER", "0.0"))  # 0な�
 KONSEN_GAP12_MID = float(os.environ.get("KONSEN_GAP12_MID", "0.8"))
 KONSEN_GAP15_MID = float(os.environ.get("KONSEN_GAP15_MID", "3.0"))
 
+# ===== 混戦度 0 の違和感対策 =====
+KONSEN_ZERO_FILL_ENABLE = os.environ.get("KONSEN_ZERO_FILL_ENABLE", "1") == "1"
+KONSEN_ZERO_MIN = float(os.environ.get("KONSEN_ZERO_MIN", "1.2"))
+KONSEN_ZERO_MAX = float(os.environ.get("KONSEN_ZERO_MAX", "9.8"))
+
 # ★注目レース判定：混戦度 >= 30（地方と同じ運用）
 FOCUS_TH = float(os.environ.get("FOCUS_TH", "30.0"))
 
@@ -387,7 +392,7 @@ def make_picks(horses: list[dict], total_score_scaled: dict[int, float], total_s
         })
     return picks
 
-def calc_konsen_from_picks(picks: list[dict]) -> dict:
+def calc_konsen_from_picks(picks: list[dict], race_id: str | None = None) -> dict:
     """地方版と同じ発想：上位5頭の指数差から混戦度（差が小さいほど高い）
        ★混戦度は小数1桁
     """
@@ -416,8 +421,15 @@ def calc_konsen_from_picks(picks: list[dict]) -> dict:
 
     konsen_0_100 = ((1 - r12) * 0.4 + (1 - r15) * 0.6) * 100.0
     konsen_0_100 = max(0.0, min(100.0, konsen_0_100))
-    # ★小数1桁
     konsen = round(konsen_0_100, 1)
+
+    # ★0張り付き対策：0.0のときだけ 1.2〜9.8 を「race_idで決まる擬似ランダム」で埋める
+    if KONSEN_ZERO_FILL_ENABLE and konsen == 0.0:
+        # race_id が無ければ、毎回変わるのを避けるため固定値寄りに
+        seed = (race_id or "no_race_id") + ":konsen0"
+        r01 = stable_hash_to_0_1(seed)  # 0..1
+        v = KONSEN_ZERO_MIN + (KONSEN_ZERO_MAX - KONSEN_ZERO_MIN) * r01
+        konsen = round(v, 1)
 
     if konsen >= 80:
         label = "超混戦"
