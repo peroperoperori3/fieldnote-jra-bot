@@ -1,4 +1,4 @@
-﻿import os, re, json, time, hashlib, math
+import os, re, json, time, hashlib, math
 from datetime import datetime
 from pathlib import Path
 
@@ -13,10 +13,34 @@ UA = {
     "Accept-Language": "ja,en;q=0.8",
 }
 
-TRACK_JA_TO_CODE = {"東京": "tokyo", "京都": "kyoto", "小倉": "kokura"}
+# ✅ 全開催場（JRA10場）
+TRACK_JA_TO_CODE = {
+    "札幌": "sapporo",
+    "函館": "hakodate",
+    "福島": "fukushima",
+    "新潟": "niigata",
+    "東京": "tokyo",
+    "中山": "nakayama",
+    "中京": "chukyo",
+    "京都": "kyoto",
+    "阪神": "hanshin",
+    "小倉": "kokura",
+}
 
-# 吉馬（中央）開催場ID
-KICHIUMA_ID = {"東京": 75, "京都": 78, "小倉": 80}
+# ✅ 吉馬（中央）開催場ID（= id パラメータ）
+# 札幌=71, 函館=72, 福島=73, 新潟=74, 東京=75, 中山=76, 中京=77, 京都=78, 阪神=79, 小倉=80
+KICHIUMA_ID = {
+    "札幌": 71,
+    "函館": 72,
+    "福島": 73,
+    "新潟": 74,
+    "東京": 75,
+    "中山": 76,
+    "中京": 77,
+    "京都": 78,
+    "阪神": 79,
+    "小倉": 80,
+}
 
 MARKS5 = ["◎", "〇", "▲", "△", "☆"]
 
@@ -54,11 +78,6 @@ TIE_JITTER_TRIGGER = float(os.environ.get("TIE_JITTER_TRIGGER", "0.0"))  # 0な�
 # ===== 混戦度（上位スコア差から算出）=====
 KONSEN_GAP12_MID = float(os.environ.get("KONSEN_GAP12_MID", "0.8"))
 KONSEN_GAP15_MID = float(os.environ.get("KONSEN_GAP15_MID", "3.0"))
-
-# ===== 混戦度 0 の違和感対策 =====
-KONSEN_ZERO_FILL_ENABLE = os.environ.get("KONSEN_ZERO_FILL_ENABLE", "1") == "1"
-KONSEN_ZERO_MIN = float(os.environ.get("KONSEN_ZERO_MIN", "1.2"))
-KONSEN_ZERO_MAX = float(os.environ.get("KONSEN_ZERO_MAX", "9.8"))
 
 # ★注目レース判定：混戦度 >= 30（地方と同じ運用）
 FOCUS_TH = float(os.environ.get("FOCUS_TH", "30.0"))
@@ -159,7 +178,8 @@ def parse_shutuba_core(race_id: str):
         y, mo, d = m_date.group(1), int(m_date.group(2)), int(m_date.group(3))
         yyyymmdd = f"{y}{mo:02d}{d:02d}"
 
-    m_place = re.search(r"(東京|京都|小倉)\s*(\d{1,2})R", title)
+    # ✅ 全開催場
+    m_place = re.search(r"(札幌|函館|福島|新潟|東京|中山|中京|京都|阪神|小倉)\s*(\d{1,2})R", title)
     place = m_place.group(1) if m_place else None
     race_no = int(m_place.group(2)) if m_place else None
 
@@ -366,7 +386,6 @@ def apply_tie_jitter_top5(picks: list[dict], race_id: str) -> None:
         r01 = stable_hash_to_0_1(seed)
         jitter = r01 * max(0.0, TIE_JITTER_MAX)
         new_sc = max(SCORE_MIN, sc - jitter)
-        # ★指数は小数2桁
         p["score"] = round(new_sc, 2)
 
 def make_picks(horses: list[dict], total_score_scaled: dict[int, float], total_score_raw01: dict[int, float] | None = None) -> list[dict]:
@@ -380,8 +399,7 @@ def make_picks(horses: list[dict], total_score_scaled: dict[int, float], total_s
             "mark": MARKS5[i],
             "umaban": umaban,
             "name": h["name"],
-            # ★指数は小数2桁
-            "score": round(float(sc), 2),
+            "score": round(float(sc), 2),  # 指数：小数2桁
             "raw_0_100": round(float(total_score_raw01.get(umaban, 0.0)), 1) if total_score_raw01 else None,
             "sp": 0.0,
             "base_index": 0.0,
@@ -394,7 +412,7 @@ def make_picks(horses: list[dict], total_score_scaled: dict[int, float], total_s
 
 def calc_konsen_from_picks(picks: list[dict], race_id: str | None = None) -> dict:
     """地方版と同じ発想：上位5頭の指数差から混戦度（差が小さいほど高い）
-       ★混戦度は小数1桁
+       混戦度：小数1桁
     """
     vals = []
     for p in (picks or []):
@@ -423,13 +441,13 @@ def calc_konsen_from_picks(picks: list[dict], race_id: str | None = None) -> dic
     konsen_0_100 = max(0.0, min(100.0, konsen_0_100))
     konsen = round(konsen_0_100, 1)
 
-    # ★0張り付き対策：0.0のときだけ 1.2〜9.8 を「race_idで決まる擬似ランダム」で埋める
-    if KONSEN_ZERO_FILL_ENABLE and konsen == 0.0:
-        # race_id が無ければ、毎回変わるのを避けるため固定値寄りに
-        seed = (race_id or "no_race_id") + ":konsen0"
-        r01 = stable_hash_to_0_1(seed)  # 0..1
-        v = KONSEN_ZERO_MIN + (KONSEN_ZERO_MAX - KONSEN_ZERO_MIN) * r01
-        konsen = round(v, 1)
+    # ✅ 混戦度が 0.0 の「違和感」対策：1.2〜9.8 を擬似ランダムで付与（毎回同じ）
+    if konsen == 0.0:
+        if race_id:
+            r01 = stable_hash_to_0_1("konsen0:" + str(race_id))
+        else:
+            r01 = 0.5
+        konsen = round(1.2 + r01 * (9.8 - 1.2), 1)
 
     if konsen >= 80:
         label = "超混戦"
@@ -503,7 +521,7 @@ def main():
         picks = make_picks(r["horses"], display_scores, compressed_0_100)
         apply_tie_jitter_top5(picks, rid)
 
-        konsen = calc_konsen_from_picks(picks, rid)
+        konsen = calc_konsen_from_picks(picks, race_id=rid)
         focus = (konsen.get("value") is not None) and (float(konsen["value"]) >= FOCUS_TH)
 
         print("[TOTAL picks]")
@@ -529,7 +547,6 @@ def main():
 
         by_place.setdefault(info["place"], []).append(info)
 
-    all_races: list[dict] = []
     for place in by_place:
         by_place[place].sort(key=lambda x: x["race_no"])
 
@@ -564,7 +581,7 @@ def main():
             picks = make_picks(r["horses"], display_scores, compressed_0_100)
             apply_tie_jitter_top5(picks, r["race_id"])
 
-            konsen = calc_konsen_from_picks(picks, r["race_id"])
+            konsen = calc_konsen_from_picks(picks, race_id=r["race_id"])
             focus = (konsen.get("value") is not None) and (float(konsen["value"]) >= FOCUS_TH)
 
             preds.append({
@@ -600,9 +617,8 @@ def main():
         path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
         print("[DONE] wrote", path)
 
-        all_races.extend(preds)
-
-)
+    # ✅ jra_predict_like_local_YYYYMMDD.json（まとめ）生成は「しない」
+    print("[DONE] per-place json only (no jra_predict_like_local_*.json)")
 
 if __name__ == "__main__":
     main()
