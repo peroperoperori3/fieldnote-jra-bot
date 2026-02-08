@@ -1,0 +1,101 @@
+name: fieldnote jra (predict/result + wp post)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "predict or result"
+        required: true
+        default: "predict"
+        type: choice
+        options:
+          - predict
+          - result
+      date:
+        description: "YYYYMMDD (ex: 20260201)"
+        required: true
+        default: "20260201"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+
+      # -----------------------
+      # Predict
+      # -----------------------
+      - name: Run predict
+        if: ${{ inputs.mode == 'predict' }}
+        env:
+          KAISAI_DATE: ${{ inputs.date }}
+          SLEEP_SEC: "0.8"
+          DEBUG: "0"
+          # 必要なら調整（未指定でもOK）
+          # MAX_FETCH_RACEIDS: "200"
+          # KICHI_W: "0.80"
+          # JIRO_W: "0.20"
+          # KONSEN_GAP12_MID: "0.8"
+          # KONSEN_GAP15_MID: "3.0"
+          # FOCUS_TH: "30"
+        run: |
+          python jra_predict.py
+
+      # -----------------------
+      # Result
+      # -----------------------
+      - name: Run result
+        if: ${{ inputs.mode == 'result' }}
+        env:
+          DATE: ${{ inputs.date }}
+          SLEEP_SEC: "0.8"
+          DEBUG: "0"
+          PRED_GLOB: output/jra_predict_${{ inputs.date }}_*.json
+          BET_ENABLE: "1"
+          BET_UNIT: "100"
+          BOX_N: "5"
+          FOCUS_ONLY: "1"
+          FOCUS_TH: "30"
+        run: |
+          python jra_result.py
+
+      # -----------------------
+      # Post to WordPress
+      # -----------------------
+      - name: Post to WordPress
+        env:
+          WP_BASE: ${{ secrets.WP_BASE }}
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+          WP_POST_STATUS: ${{ secrets.WP_POST_STATUS }}
+          MODE: ${{ inputs.mode }}
+          DATE: ${{ inputs.date }}
+        run: |
+          python wp_post.py
+
+      # -----------------------
+      # Commit outputs back to repo
+      # -----------------------
+      - name: Commit outputs
+        run: |
+          git status
+          git add -A
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git commit -m "update jra outputs (${{ inputs.mode }} ${{ inputs.date }})"
+          git push
