@@ -1,5 +1,5 @@
 import os, re, json, time, math, glob, hashlib
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import requests
@@ -15,564 +15,475 @@ UA = {
 
 OUTDIR = Path("output")
 OUTDIR.mkdir(parents=True, exist_ok=True)
+CACHEDIR = Path("cache")
+CACHEDIR.mkdir(parents=True, exist_ok=True)
 
-DATE = os.environ.get("DATE", "").strip()
-if not re.fullmatch(r"\d{8}", DATE or ""):
-    # default: 今日(JST)
-    now = datetime.utcnow()
-    # JSTに寄せるだけ（厳密には不要）
-    DATE = (now).strftime("%Y%m%d")
+SLEEP_SEC = float(os.environ.get("SLEEP_SEC", "0.8"))
+DEBUG = os.environ.get("DEBUG", "0") == "1"
 
-# 「注目レースのみ購入」設定
-FOCUS_ONLY = os.environ.get("FOCUS_ONLY", "1") == "1"   # 1: 注目のみ / 0: 全レース買う
-UNIT = int(os.environ.get("BET_UNIT", "100"))           # 100円単位
-BOX_N = int(os.environ.get("BOX_N", "5"))               # 指数上位 N 頭（通常5）
-FOCUS_TH = float(os.environ.get("FOCUS_TH", "30"))      # 予想JSON内 focus が無い場合の保険（混戦度>=これなら注目扱い）
+DATE = os.environ.get("DATE", "").strip()                 # 例: 20260201
+PRED_GLOB = os.environ.get("PRED_GLOB", "").strip()       # 例: output/jra_predict_20260201_*.json
+RACES_MAX = int(os.environ.get("RACES_MAX", "200"))       # 保険
 
-# キャッシュ（結果ページのHTML取得を少し軽く）
-CACHE_DIR = OUTDIR / ".cache_jra"
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
+BET_ENABLE = os.environ.get("BET_ENABLE", "0") == "1"
+BET_UNIT = int(os.environ.get("BET_UNIT", "100"))         # 100円単位
+BOX_N = int(os.environ.get("BOX_N", "5"))
+FOCUS_ONLY = os.environ.get("FOCUS_ONLY", "1") == "1"
+FOCUS_TH = float(os.environ.get("FOCUS_TH", "30"))
 
+# pnl出力
 PNL_PATH = OUTDIR / "pnl_total_jra.json"
 
 
 # ==========================
-# utils
+# HTTP + cache
 # ==========================
-def jst_iso_now():
-    # JSTっぽい時刻表示（厳密TZは不要）
-    return datetime.now().isoformat(timespec="seconds")
+def _cache_path(prefix: str, key: str) -> Path:
+    h = hashlib.md5(key.encode("utf-8")).hexdigest()
+    return CACHEDIR / f"{prefix}_{h}.html"
 
-def safe_read_json(p: Path):
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except:
-        return None
 
-def write_json(p: Path, obj):
-    p.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
-
-def cache_get(url: str):
-    h = hashlib.md5(url.encode("utf-8")).hexdigest()
-    cp = CACHE_DIR / f"{h}.html"
-    if cp.exists():
-        try:
+def get_text(url: str, force_encoding: str | None = None, cache_prefix: str | None = None) -> str:
+    """
+    netkeiba系は EUC-JP が混ざることがあるので、
+    force_encoding が指定されてない場合でも netkeiba は EUC-JP を優先する。
+    """
+    if cache_prefix:
+        cp = _cache_path(cache_prefix, url)
+        if cp.exists():
             return cp.read_text(encoding="utf-8", errors="ignore")
-        except:
-            return None
-    return None
 
-def cache_set(url: str, html: str):
-    h = hashlib.md5(url.encode("utf-8")).hexdigest()
-    cp = CACHE_DIR / f"{h}.html"
-    try:
-        cp.write_text(html, encoding="utf-8")
-    except:
-        pass
+    r = requests.get(url, headers=UA, timeout=30)
+    if DEBUG:
+        print(f"[HTTP] {r.status_code} {url}")
+    r.raise_for_status()
 
-def num(v, default=None):
-    try:
-        x = float(v)
-        if math.isfinite(x):
-            return x
-    except:
-        pass
-    return default
+    # ★ 文字化け対策：netkeiba は EUC-JP 優先
+    if force_encoding:
+        r.encoding = force_encoding
+    else:
+        if "netkeiba.com" in url:
+            r.encoding = "EUC-JP"
+        elif r.encoding is None or r.encoding.lower() == "iso-8859-1":
+            r.encoding = r.apparent_encoding
 
-def should_focus(race: dict) -> bool:
-    # 予想JSON側で focus が入ってるならそれを尊重
-    if isinstance(race, dict) and "focus" in race:
-        return bool(race.get("focus"))
-    # 無い場合：konsen.value >= FOCUS_TH で注目扱い（保険）
-    konsen = race.get("konsen") if isinstance(race, dict) else None
-    kv = None
-    if isinstance(konsen, dict):
-        kv = num(konsen.get("value"), None)
-    return (kv is not None) and (kv >= FOCUS_TH)
+    text = r.text
 
-def is_hit_trio(top3_umaban: list, box_umaban: list) -> bool:
-    # 三連複：1-3着の馬番がBOX内に全部含まれるか
-    if not isinstance(top3_umaban, list) or len(top3_umaban) != 3:
-        return False
-    s = set(int(x) for x in box_umaban if isinstance(x, (int, float)) or (isinstance(x, str) and str(x).isdigit()))
-    for x in top3_umaban:
+    if cache_prefix:
+        cp = _cache_path(cache_prefix, url)
+        cp.write_text(text, encoding="utf-8", errors="ignore")
+
+    return text
+
+
+# ==========================
+# 解析：結果（top3: 馬番+馬名）
+# ==========================
+def parse_top3_from_result_table(soup: BeautifulSoup) -> tuple[list[int], list[dict]]:
+    """
+    netkeiba 結果HTML:
+    table#All_Result_Table の tr.HorseList から
+    着順1-3の「馬番」と「馬名」を取る
+    """
+    top_umaban = {}
+    top_named = {}
+
+    table = soup.select_one("#All_Result_Table")
+    if not table:
+        return [], []
+
+    for tr in table.select("tr.HorseList"):
+        # 着順
+        rank_el = tr.select_one("td.Result_Num .Rank")
+        if not rank_el:
+            continue
+        rank_txt = rank_el.get_text(strip=True)
+        if not rank_txt.isdigit():
+            continue
+        rank = int(rank_txt)
+        if rank not in (1, 2, 3):
+            continue
+
+        # 馬番（枠ではなく馬番）
+        umaban_td = tr.select_one("td.Num.Txt_C")
+        if not umaban_td:
+            continue
+        umaban_txt = umaban_td.get_text(strip=True)
+        if not umaban_txt.isdigit():
+            continue
+        umaban = int(umaban_txt)
+
+        # 馬名
+        # パターンが多少揺れるので、複数候補で拾う
+        name = ""
+        name_el = (
+            tr.select_one("td.Horse_Info a") or
+            tr.select_one("td.Horse_Info span.Horse_Name a") or
+            tr.select_one("td.Horse_Info span.HorseName a")
+        )
+        if name_el:
+            name = name_el.get_text(strip=True)
+
+        top_umaban[rank] = umaban
+        top_named[rank] = {"rank": rank, "umaban": umaban, "name": name}
+
+    if 1 in top_umaban and 2 in top_umaban and 3 in top_umaban:
+        arr = [top_umaban[1], top_umaban[2], top_umaban[3]]
+        named = [top_named[1], top_named[2], top_named[3]]
+        return arr, named
+
+    return [], []
+
+
+# ==========================
+# 解析：払戻（3連複 100円）
+# ==========================
+def parse_sanrenpuku_refund_100yen(soup: BeautifulSoup) -> int:
+    """
+    netkeiba 結果HTML内の払戻テーブルから
+    「3連複」の払戻金額（100円あたり）を取得
+    """
+    yen_pat = re.compile(r"(\d[\d,]+)\s*円")
+
+    # 払戻テーブルは複数あることがあるので「三連複/3連複」行を探す
+    for tr in soup.select("tr"):
+        cells = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
+        if not cells:
+            continue
+
+        joined = " ".join(cells)
+        # 「3連複」表記ゆれ対応
+        if ("3連複" not in joined) and ("三連複" not in joined):
+            continue
+
+        m = yen_pat.search(joined)
+        if not m:
+            continue
+
+        amt = int(m.group(1).replace(",", ""))
+        return amt
+
+    return 0
+
+
+# ==========================
+# 予想JSONから races を抽出
+# ==========================
+def extract_races(pred_json: dict) -> list[dict]:
+    races = pred_json.get("races") or []
+    norm = []
+    for r in races:
+        rid = str(r.get("race_id") or "").strip()
+        if not re.fullmatch(r"\d{12}", rid):
+            continue
+        place = str(r.get("place") or pred_json.get("place") or "").strip()
+        race_no = r.get("race_no")
+        race_name = r.get("race_name") or ""
+        picks = r.get("picks") or []
+        konsen = r.get("konsen") or {}
+        focus = bool(r.get("focus"))
+        focus_score = r.get("focus_score", konsen.get("value"))
+        norm.append({
+            "race_id": rid,
+            "place": place,
+            "race_no": race_no,
+            "race_name": race_name,
+            "picks": picks,
+            "konsen": konsen,
+            "focus": focus,
+            "focus_score": focus_score,
+        })
+    return norm
+
+
+# ==========================
+# 購入判定（注目だけ買う）
+# ==========================
+def comb(n: int, r: int) -> int:
+    if n < r:
+        return 0
+    return math.comb(n, r)
+
+
+def make_box_umaban_from_picks(picks: list[dict], box_n: int) -> list[int]:
+    nums = []
+    for p in (picks or [])[:box_n]:
         try:
-            xi = int(x)
+            nums.append(int(p.get("umaban")))
         except:
-            return False
-        if xi not in s:
+            pass
+
+    uniq, seen = [], set()
+    for u in nums:
+        if u in seen:
+            continue
+        seen.add(u)
+        uniq.append(u)
+    return uniq
+
+
+def should_bet(r: dict) -> bool:
+    if not BET_ENABLE:
+        return False
+    if FOCUS_ONLY:
+        k = r.get("konsen") or {}
+        kv = r.get("focus_score", k.get("value"))
+        try:
+            return float(kv) >= FOCUS_TH
+        except:
             return False
     return True
 
-def calc_box_bet_amount(box_umaban: list) -> int:
-    # 三連複BOX：nC3 通り * 100円単位 * UNIT
+
+def calc_bet_amount(box_umaban: list[int]) -> int:
+    # 3連複BOX 点数 * BET_UNIT
     n = len(box_umaban)
-    if n < 3:
-        return 0
-    comb = n * (n - 1) * (n - 2) // 6
-    return comb * UNIT
-
-def parse_int(s):
-    try:
-        return int(str(s).strip())
-    except:
-        return None
+    return BET_UNIT * comb(n, 3)
 
 
-# ==========================
-# JRA Result Scrape（簡易）
-# 目的：top3(馬番+馬名) と 三連複(100円) を取る
-# ==========================
-def fetch_html(url: str) -> str:
-    cached = cache_get(url)
-    if cached:
-        return cached
-    r = requests.get(url, headers=UA, timeout=15)
-    r.raise_for_status()
-    html = r.text
-    cache_set(url, html)
-    return html
+def is_hit(top3: list[int], box_umaban: list[int]) -> bool:
+    if len(top3) != 3:
+        return False
+    s = set(box_umaban)
+    return all(x in s for x in top3)
 
-def jra_result_url(date: str, place: str, race_no: int) -> str:
-    # netkeiba（日本語）を前提
-    # URLは「場所」「日付」から直接作れないケースがあるので
-    # ここはあなたの現行jra_result.pyで既に解決済みの「race_id解決」ロジックがあるはず。
-    # → この全文版では「result_top3 をJSONに既に入れられる前提」で、HTMLパース関数だけ用意してる。
-    #
-    # もし今あなたの環境が「race_id解決済み」で動いてるなら、
-    # 下の fetch_result_by_race_id() を使うのが一番事故らない。
-    raise NotImplementedError("この関数は使いません（race_id経由で取ってください）")
 
-def fetch_result_by_race_id(race_id: str) -> dict:
-    """
-    race_id から結果ページを開いて
-    - top3: [{rank, umaban, name}]
-    - fuku3_100yen: int or None  (三連複 100円払戻)
-    を返す
-    """
-    # 例: https://race.netkeiba.com/race/result.html?race_id=202606020801
-    url = f"https://race.netkeiba.com/race/result.html?race_id={race_id}"
-    html = fetch_html(url)
-    soup = BeautifulSoup(html, "html.parser")
-
-    # --- top3 ---
-    top3 = []
-    # netkeibaの結果表（table）をざっくり拾う
-    # 「着順」「馬番」「馬名」っぽい列を上から3つ読む
-    table = soup.select_one("table")  # ざっくり。必要ならセレクタ強化してOK
-    if table:
-        rows = table.select("tr")
-        for tr in rows:
-            tds = tr.select("td")
-            if len(tds) < 4:
-                continue
-            rank = parse_int(tds[0].get_text(strip=True))
-            umaban = parse_int(tds[2].get_text(strip=True))  # ここはサイトの列次第でズレる可能性あり
-            name = tds[3].get_text(" ", strip=True)
-            if rank in (1, 2, 3) and umaban:
-                top3.append({"rank": rank, "umaban": umaban, "name": name})
-            if len(top3) == 3:
-                break
-
-    # --- 三連複(100円) ---
-    fuku3_100 = None
-    # 払戻表から「三連複」を探す（かなり雑だが実用）
-    pay_tables = soup.select("table")
-    for tb in pay_tables:
-        txt = tb.get_text(" ", strip=True)
-        if "三連複" in txt:
-            # 100円払戻っぽい数字を抜く
-            m = re.search(r"三連複\s+[\d\-→ ]+\s+([\d,]+)\s*円", txt)
-            if m:
-                fuku3_100 = parse_int(m.group(1).replace(",", ""))
-                break
-
-    return {"top3": top3, "fuku3_100yen": fuku3_100, "url": url}
+def calc_pay(fuku3_100yen: int) -> int:
+    # 払戻は「100円あたり」なので、BET_UNITが100円以外にも対応
+    return int(round(fuku3_100yen * (BET_UNIT / 100.0), 0))
 
 
 # ==========================
-# 予想JSON（jra_predict_YYYYMMDD_場所.json）を読む
+# pnl: load/update
 # ==========================
-def list_predict_files(date: str):
-    return sorted(OUTDIR.glob(f"jra_predict_{date}_*.json"))
-
-def place_from_predict_filename(p: Path) -> str:
-    # jra_predict_20260125_中山.json → 中山
-    m = re.match(rf"jra_predict_{DATE}_(.+)\.json$", p.name)
-    if not m:
-        # 末尾から推定
-        stem = p.stem
-        parts = stem.split("_")
-        return parts[-1] if parts else "UNK"
-    return m.group(1)
-
-def normalize_picks(race: dict):
-    """
-    予想JSONの race.picks が
-    - 既に [{mark,umaban,name,score},...] ならそのまま
-    - もし [int,int,...] っぽかったら最低限の形に直す
-    """
-    picks = race.get("picks")
-    if isinstance(picks, list) and picks and isinstance(picks[0], dict):
-        return picks
-    if isinstance(picks, list):
-        out = []
-        marks = ["◎", "〇", "▲", "△", "☆"]
-        for i, x in enumerate(picks[:BOX_N]):
-            out.append({
-                "mark": marks[i] if i < len(marks) else "",
-                "umaban": parse_int(x) or 0,
-                "name": "",
-                "score": None
-            })
-        return out
-    return []
-
-def extract_konsen(race: dict):
-    k = race.get("konsen")
-    if isinstance(k, dict):
-        return {
-            "name": k.get("name") or "混戦度",
-            "value": k.get("value", None),
-            "label": k.get("label"),
-            "gap12": k.get("gap12"),
-            "gap15": k.get("gap15"),
-            "is_focus": bool(race.get("focus", False)),
-        }
-    # 無い場合でもフロント互換で置く
-    return {
-        "name": "混戦度",
-        "value": None,
-        "label": None,
-        "gap12": None,
-        "gap15": None,
-        "is_focus": bool(race.get("focus", False)),
-    }
+def load_pnl() -> dict:
+    if PNL_PATH.exists():
+        try:
+            return json.loads(PNL_PATH.read_text(encoding="utf-8"))
+        except:
+            return {}
+    return {}
 
 
-# ==========================
-# pnl_total_jra.json（累積）読み書き
-# ==========================
-def load_pnl_total():
-    cur = safe_read_json(PNL_PATH)
-    if isinstance(cur, dict):
-        return cur
-    # 初期
-    return {
-        "type": "jra",
-        "invest": 0,
-        "payout": 0,
-        "profit": 0,
-        "roi": 0.0,
-        "hits": 0,         # 注目レース的中数
-        "races": 0,        # 注目レース数
-        "hit_rate": 0.0,   # 注目レース的中率
-        "pred_races": 0,   # 全レース数（pred_hit集計）
-        "pred_hits": 0,    # 全レース的中数（pred_hit）
-        "pred_hit_rate": 0.0,
-        "by_place": {},        # 注目レース（投資/払戻など）
-        "pred_by_place": {},   # 全体的中率（races/hits/hit_rate）
-        "history": [],         # 日別（将来用）
-        "last_updated": None
-    }
-
-def recalc_totals_from_history(pnl: dict):
-    hist = pnl.get("history") or []
-    invest = payout = profit = 0
-    hits = races = 0
-    pred_races = pred_hits = 0
-
-    by_place = {}
-    pred_by_place = {}
-
-    for d in hist:
-        invest += int(d.get("invest", 0) or 0)
-        payout += int(d.get("payout", 0) or 0)
-        profit += int(d.get("profit", 0) or 0)
-        hits += int(d.get("hits", 0) or 0)
-        races += int(d.get("races", 0) or 0)
-
-        pred_races += int(d.get("pred_races", 0) or 0)
-        pred_hits += int(d.get("pred_hits", 0) or 0)
-
-        # place加算
-        bp = d.get("by_place") or {}
-        for place, v in bp.items():
-            o = by_place.setdefault(place, {"invest":0,"payout":0,"profit":0,"bet_races":0,"hit":0})
-            o["invest"] += int(v.get("invest",0) or 0)
-            o["payout"] += int(v.get("payout",0) or 0)
-            o["profit"] += int(v.get("profit",0) or 0)
-            o["bet_races"] += int(v.get("bet_races",0) or 0)
-            o["hit"] += int(v.get("hit",0) or 0)
-
-        pbp = d.get("pred_by_place") or {}
-        for place, v in pbp.items():
-            o = pred_by_place.setdefault(place, {"races":0,"hits":0})
-            o["races"] += int(v.get("races",0) or 0)
-            o["hits"] += int(v.get("hits",0) or 0)
-
-    pnl["invest"] = invest
-    pnl["payout"] = payout
-    pnl["profit"] = profit
-    pnl["roi"] = round((payout / invest) * 100, 1) if invest > 0 else 0.0
-    pnl["hits"] = hits
-    pnl["races"] = races
-    pnl["hit_rate"] = round((hits / races) * 100, 1) if races > 0 else 0.0
-
-    pnl["pred_races"] = pred_races
-    pnl["pred_hits"] = pred_hits
-    pnl["pred_hit_rate"] = round((pred_hits / pred_races) * 100, 1) if pred_races > 0 else 0.0
-
-    # 率埋め
-    for place, v in by_place.items():
-        inv = v["invest"]
-        pay = v["payout"]
-        br = v["bet_races"]
-        ht = v["hit"]
-        v["roi"] = round((pay / inv) * 100, 1) if inv > 0 else 0.0
-        v["hit_rate"] = round((ht / br) * 100, 1) if br > 0 else 0.0
+def update_pnl(pnl: dict, date: str, by_place: dict, total: dict) -> dict:
+    pnl = pnl or {}
+    pnl["last_updated"] = datetime.now(timezone(timedelta(hours=9))).isoformat(timespec="seconds")
+    pnl["total"] = total
     pnl["by_place"] = by_place
 
-    for place, v in pred_by_place.items():
-        r = v["races"]
-        h = v["hits"]
-        v["hit_rate"] = round((h / r) * 100, 1) if r > 0 else 0.0
-    pnl["pred_by_place"] = pred_by_place
-
-
-def upsert_day_history(pnl: dict, day_row: dict):
+    # history 追記（同日があれば置き換え）
     hist = pnl.get("history") or []
-    date = day_row.get("date")
-    hist = [x for x in hist if x.get("date") != date]
-    hist.append(day_row)
-    hist.sort(key=lambda x: x.get("date") or "")
+    hist = [h for h in hist if str(h.get("date")) != str(date)]
+    hist.append({
+        "date": date,
+        **total,
+    })
     pnl["history"] = hist
+    return pnl
 
 
 # ==========================
-# メイン処理
+# main
 # ==========================
 def main():
-    pred_files = list_predict_files(DATE)
-    print(f"[INFO] DATE={DATE} pred_files={len(pred_files)}")
+    if not DATE:
+        raise SystemExit("DATE is required (e.g. 20260201)")
+    if not PRED_GLOB:
+        raise SystemExit("PRED_GLOB is required (e.g. output/jra_predict_20260201_*.json)")
+
+    pred_files = sorted(glob.glob(PRED_GLOB))
     if not pred_files:
-        print("[WARN] no jra_predict files")
-        return
+        raise SystemExit(f"no pred files matched: {PRED_GLOB}")
 
-    all_result_outputs = []
-    day_focus_invest = 0
-    day_focus_payout = 0
-    day_focus_profit = 0
-    day_focus_races = 0
-    day_focus_hits = 0
+    print(f"[INFO] DATE={DATE} races_max={RACES_MAX}")
+    print(f"[INFO] BET enabled={BET_ENABLE} unit={BET_UNIT} box_n={BOX_N} focus_only={FOCUS_ONLY} focus_th={FOCUS_TH}")
+    print(f"[INFO] pred_glob={PRED_GLOB}")
+    if DEBUG:
+        print(f"[DEBUG] pred files = {pred_files}")
 
-    day_pred_races = 0
-    day_pred_hits = 0
+    place_summaries = {}
 
-    day_by_place = {}
-    day_pred_by_place = {}
+    overall_invest = 0
+    overall_payout = 0
+    overall_betr = 0
+    overall_hit = 0
 
     for pf in pred_files:
-        place = place_from_predict_filename(pf)
-        pred_json = safe_read_json(pf)
-        if not isinstance(pred_json, dict):
-            print(f"[WARN] invalid json: {pf}")
-            continue
+        pred_json = json.loads(Path(pf).read_text(encoding="utf-8"))
+        place = pred_json.get("place") or ""
+        races = extract_races(pred_json)[:RACES_MAX]
 
-        races = pred_json.get("races")
-        if not isinstance(races, list):
-            # もし predictions 形式なら寄せる
-            races = pred_json.get("predictions") if isinstance(pred_json.get("predictions"), list) else []
-        if not races:
-            print(f"[WARN] no races: {pf.name}")
-            continue
-
-        out_races = []
-        place_focus_invest = 0
-        place_focus_payout = 0
-        place_focus_profit = 0
-        place_focus_races = 0
-        place_focus_hits = 0
-
-        place_pred_races = 0
-        place_pred_hits = 0
+        results = []
+        invest = payout = bet_races = hit = 0
 
         for r in races:
-            race_no = int(r.get("race_no") or 0)
+            race_id = r["race_id"]
+            place = r.get("place") or place
+            race_no = r.get("race_no")
             race_name = r.get("race_name") or ""
-            race_id = r.get("race_id") or r.get("netkeiba_race_id")  # どちらでもOK
+            konsen = r.get("konsen") or {}
+            focus = bool(r.get("focus"))
+            picks = (r.get("picks") or [])[:5]
 
-            # 予想上位BOX_N
-            picks = normalize_picks(r)
-            box_umaban = [parse_int(x.get("umaban")) for x in picks if isinstance(x, dict)]
-            box_umaban = [x for x in box_umaban if x]
+            # 結果URL
+            result_url = f"https://race.netkeiba.com/race/result.html?race_id={race_id}"
 
-            # 結果取得
-            top3_items = []
-            fuku3_100 = None
-            if race_id:
-                try:
-                    got = fetch_result_by_race_id(str(race_id))
-                    top3_items = got.get("top3") or []
-                    fuku3_100 = got.get("fuku3_100yen")
-                except Exception as e:
-                    top3_items = []
-                    fuku3_100 = None
+            time.sleep(SLEEP_SEC)
+            try:
+                html = get_text(result_url, force_encoding="EUC-JP", cache_prefix="jra_result")
+            except Exception as e:
+                if DEBUG:
+                    print("[WARN] result fetch failed", result_url, e)
+                html = ""
 
-            # pred_hit（全レース判定：結果が取れてるなら常に判定）
-            top3_umaban = [x.get("umaban") for x in top3_items if isinstance(x, dict)]
-            pred_hit = is_hit_trio(top3_umaban, box_umaban)
+            soup = BeautifulSoup(html, "html.parser")
+            top3, top3_named = parse_top3_from_result_table(soup)
+            fuku3 = parse_sanrenpuku_refund_100yen(soup)
 
-            # 全体集計（pred）
-            place_pred_races += 1
-            day_pred_races += 1
-            if pred_hit:
-                place_pred_hits += 1
-                day_pred_hits += 1
+            # 注目買い
+            do_bet = should_bet({"konsen": konsen, "focus_score": r.get("focus_score", konsen.get("value"))})
+            box_umaban = make_box_umaban_from_picks(picks, BOX_N)
+            bet_amount = calc_bet_amount(box_umaban) if do_bet else 0
+            hit_flag = is_hit(top3, box_umaban) if do_bet else False
+            pay_amount = calc_pay(fuku3) if (do_bet and hit_flag and fuku3 > 0) else 0
 
-            # 開催場別（pred）
-            pb = day_pred_by_place.setdefault(place, {"races": 0, "hits": 0})
-            pb["races"] += 1
-            if pred_hit:
-                pb["hits"] += 1
+            if do_bet:
+                bet_races += 1
+                invest += bet_amount
+                payout += pay_amount
+                if hit_flag:
+                    hit += 1
 
-            # 注目/購入判定
-            focus = should_focus(r)
-            bet_flag = (focus if FOCUS_ONLY else True) and (len(box_umaban) >= 3)
-
-            bet_amount = calc_box_bet_amount(box_umaban) if bet_flag else 0
-
-            bet_hit = False
-            payout_amount = 0
-
-            if bet_amount > 0:
-                # 注目集計
-                place_focus_races += 1
-                day_focus_races += 1
-
-                place_focus_invest += bet_amount
-                day_focus_invest += bet_amount
-
-                if pred_hit:
-                    # 「購入していれば」pred_hitがそのまま bet_hit
-                    bet_hit = True
-                    place_focus_hits += 1
-                    day_focus_hits += 1
-
-                # 払戻（100円→実投資UNITへ換算）
-                # fuku3_100 が取れてないなら 0 扱い
-                if bet_hit and isinstance(fuku3_100, int) and fuku3_100 > 0:
-                    # 100円あたり払戻 * (UNIT/100)
-                    payout_amount = int(round(fuku3_100 * (UNIT / 100)))
-                else:
-                    payout_amount = 0
-
-                place_focus_payout += payout_amount
-                day_focus_payout += payout_amount
-
-            # レース出力（フロント互換）
-            out_races.append({
+            results.append({
                 "race_no": race_no,
                 "race_name": race_name,
                 "place": place,
                 "focus": bool(focus),
-                "konsen": extract_konsen({**r, "focus": bool(focus)}),
-
-                "result_top3": top3_items,              # [{rank, umaban, name}]
-                "pred_top5": picks[:BOX_N],             # [{mark, umaban, name, score}]
-                "pred_hit": bool(pred_hit),             # 全体判定
-                "bet_hit": bool(bet_hit),               # 注目購入判定
+                "konsen": {
+                    "name": konsen.get("name", "混戦度"),
+                    "value": konsen.get("value"),
+                    "label": konsen.get("label"),
+                    "gap12": konsen.get("gap12"),
+                    "gap15": konsen.get("gap15"),
+                    "is_focus": bool(focus),
+                },
+                "result_top3": top3_named if top3_named else (
+                    [{"rank": i + 1, "umaban": top3[i], "name": ""} for i in range(3)] if len(top3) == 3 else []
+                ),
+                "pred_top5": [{
+                    "mark": p.get("mark"),
+                    "umaban": p.get("umaban"),
+                    "name": p.get("name"),
+                    "score": p.get("score"),
+                    "raw_0_100": p.get("raw_0_100"),
+                    "sp": p.get("sp"),
+                    "base_index": p.get("base_index"),
+                    "jockey": p.get("jockey"),
+                    "jockey_add": p.get("jockey_add"),
+                    "z": p.get("z") or {},
+                    "source": p.get("source") or {},
+                } for p in picks],
+                "pred_hit": False,  # ※必要なら後で「指数上位5に1-3着全て入ったらtrue」にしてOK
+                "bet_hit": bool(hit_flag),
                 "bet_amount": int(bet_amount),
-                "payout_amount": int(payout_amount),
+                "payout_amount": int(pay_amount),
+                "result": {
+                    "top3": top3,
+                    "sanrenpuku_100yen": int(fuku3),
+                    "url": result_url,
+                },
+                "bet": {
+                    "enable": BET_ENABLE,
+                    "unit": BET_UNIT,
+                    "box_n": BOX_N,
+                    "focus_only": FOCUS_ONLY,
+                    "focus_th": FOCUS_TH,
+                    "box_umaban": box_umaban,
+                    "amount": int(bet_amount),
+                    "hit": bool(hit_flag),
+                    "payout": int(pay_amount),
+                },
             })
 
-        # 場別注目収支
-        place_focus_profit = place_focus_payout - place_focus_invest
-        place_roi = round((place_focus_payout / place_focus_invest) * 100, 1) if place_focus_invest > 0 else 0.0
-        place_hr = round((place_focus_hits / place_focus_races) * 100, 1) if place_focus_races > 0 else 0.0
+            print(f"[OK] {place} {race_no}R top3={top3} fuku3={fuku3} bet={bet_amount} pay={pay_amount} hit={hit_flag}")
 
-        day_by_place[place] = {
-            "invest": place_focus_invest,
-            "payout": place_focus_payout,
-            "profit": place_focus_profit,
-            "bet_races": place_focus_races,
-            "hit": place_focus_hits,
-            "hit_rate": place_hr,
-            "roi": place_roi
+        profit = payout - invest
+        hit_rate = (hit / bet_races * 100.0) if bet_races else 0.0
+        roi = (payout / invest * 100.0) if invest else 0.0
+
+        place_summaries[place] = {
+            "invest": invest,
+            "payout": payout,
+            "profit": profit,
+            "bet_races": bet_races,
+            "hit": hit,
+            "hit_rate": round(hit_rate, 1),
+            "roi": round(roi, 1),
         }
 
-        # place別predは day_pred_by_place に積んでる（合算）
-
-        # result json（場所ごと）
-        place_summary = {
-            "invest": place_focus_invest,
-            "payout": place_focus_payout,
-            "profit": place_focus_profit,
-            "roi": place_roi,
-            "hits": place_focus_hits,
-            "focus_races": place_focus_races,
-            "hit_rate": place_hr,
-
-            "pred_races": place_pred_races,
-            "pred_hits": place_pred_hits,
-            "pred_hit_rate": round((place_pred_hits / place_pred_races) * 100, 1) if place_pred_races > 0 else 0.0
-        }
+        overall_invest += invest
+        overall_payout += payout
+        overall_betr += bet_races
+        overall_hit += hit
 
         out = {
             "date": DATE,
             "place": place,
-            "title": f"{DATE} {place}（JRA） 結果",
-            "summary": place_summary,
-            "races": out_races
+            "title": f"{DATE} {place}（JRA）結果",
+            "summary": {
+                "invest": invest,
+                "payout": payout,
+                "profit": profit,
+                "bet_races": bet_races,
+                "hit": hit,
+                "hit_rate": round(hit_rate, 1),
+                "roi": round(roi, 1),
+                "bet": {"enable": BET_ENABLE, "unit": BET_UNIT, "box_n": BOX_N, "focus_only": FOCUS_ONLY, "focus_th": FOCUS_TH},
+            },
+            "races": results,
+            "generated_at": datetime.now(timezone(timedelta(hours=9))).isoformat(timespec="seconds"),
         }
 
-        out_path = OUTDIR / f"result_jra_{DATE}_{place}.json"
-        write_json(out_path, out)
-        print(f"[OK] wrote {out_path}")
+        out_json = OUTDIR / f"result_jra_{DATE}_{place}.json"
+        out_json.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+        print("[DONE] wrote", out_json)
 
-        all_result_outputs.append(out)
+    # 全体集計
+    overall_profit = overall_payout - overall_invest
+    overall_hit_rate = (overall_hit / overall_betr * 100.0) if overall_betr else 0.0
+    overall_roi = (overall_payout / overall_invest * 100.0) if overall_invest else 0.0
 
-    # 日別注目収支
-    day_focus_profit = day_focus_payout - day_focus_invest
-    day_roi = round((day_focus_payout / day_focus_invest) * 100, 1) if day_focus_invest > 0 else 0.0
-    day_hr = round((day_focus_hits / day_focus_races) * 100, 1) if day_focus_races > 0 else 0.0
-
-    # pred_by_place の率埋め（この日分）
-    for place, v in day_pred_by_place.items():
-        r = v["races"]
-        h = v["hits"]
-        v["hit_rate"] = round((h / r) * 100, 1) if r > 0 else 0.0
-
-    # 日別 row（pnl_total_jra 用）
-    day_row = {
+    overall = {
         "date": DATE,
-
-        # 注目レース（購入）集計
-        "invest": day_focus_invest,
-        "payout": day_focus_payout,
-        "profit": day_focus_profit,
-        "roi": day_roi,
-        "hits": day_focus_hits,
-        "races": day_focus_races,
-        "hit_rate": day_hr,
-
-        # 全体（pred_hit）集計
-        "pred_races": day_pred_races,
-        "pred_hits": day_pred_hits,
-        "pred_hit_rate": round((day_pred_hits / day_pred_races) * 100, 1) if day_pred_races > 0 else 0.0,
-
-        # 場別
-        "by_place": day_by_place,            # 注目レース（投資/回収）
-        "pred_by_place": day_pred_by_place,  # 全体的中率（pred）
+        "invest": overall_invest,
+        "payout": overall_payout,
+        "profit": overall_profit,
+        "focus_races": overall_betr,   # ※JS側の互換用
+        "hits": overall_hit,           # ※JS側の互換用
+        "hit_rate": round(overall_hit_rate, 1),
+        "roi": round(overall_roi, 1),
+        "by_place": place_summaries,
+        "last_updated": datetime.now(timezone(timedelta(hours=9))).isoformat(timespec="seconds"),
     }
 
-    # pnl_total_jra.json 更新（累積）
-    pnl = load_pnl_total()
-    upsert_day_history(pnl, day_row)
-    pnl["last_updated"] = jst_iso_now()
-    recalc_totals_from_history(pnl)
-    write_json(PNL_PATH, pnl)
-    print(f"[OK] wrote {PNL_PATH}")
+    pnl = load_pnl()
+    pnl = update_pnl(pnl, DATE, place_summaries, {
+        "invest": overall_invest,
+        "payout": overall_payout,
+        "profit": overall_profit,
+        "bet_races": overall_betr,
+        "hit": overall_hit,
+        "hit_rate": round(overall_hit_rate, 1),
+        "roi": round(overall_roi, 1),
+    })
+
+    # ★ JSで読む「pnl_total_jra.json」を “今日の全体” 形式に合わせて出す
+    # （history/total/by_place を残しつつ、トップにも今日の値を置く）
+    pnl_out = pnl.copy()
+    pnl_out.update(overall)
+    PNL_PATH.write_text(json.dumps(pnl_out, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("[DONE] pnl ->", PNL_PATH)
+    print("[DONE] all places")
 
 
 if __name__ == "__main__":
