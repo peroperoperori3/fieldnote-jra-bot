@@ -279,7 +279,7 @@ def build_result_html(date: str, place: str, result_obj: dict) -> str:
 
     h = []
     h.append(f"<div style='max-width: 980px; margin: 0 auto; line-height: 1.7;'>")
-    h.append(f"<h2 style='margin:12px 0 8px; font-size:20px; font-weight:900;'>{date[:4]}.{date[4:6]}.{date[6:8]} {place} 结果</h2>")
+    h.append(f"<h2 style='margin:12px 0 8px; font-size:20px; font-weight:900;'>{date[:4]}.{date[4:6]}.{date[6:8]} {place} 結果</h2>")
 
     h.append("<div style='margin:16px 0 18px; padding:12px 12px; border:1px solid #e5e7eb; border-radius:14px; background:#fff;'>")
     h.append("<div style='display:flex; flex-wrap:wrap; gap:8px; align-items:center;'>")
@@ -316,7 +316,7 @@ def build_result_html(date: str, place: str, result_obj: dict) -> str:
         if pay > 0:
             h.append(f"<span style='display:inline-block;padding:4px 10px;border-radius:999px;background:#16a34a;color:#fff;font-weight:900;font-size:12px;'>払 {yen(pay)}円</span>")
         if hitf:
-            h.append(f"<span style='display:inline-block;padding:4px 10px;border-radius:999px;background:#16a34a;color:#fff;font-weight:900;font-size:12px;'>HIT</span>")
+            h.append(f"<span style='display:inline-block;padding:4px 10px;border-radius:999px;background:#16a34a;color:#fff;font-weight:900;font-size:12px;'>的中</span>")
         h.append("</div></div>")
 
         # picks
