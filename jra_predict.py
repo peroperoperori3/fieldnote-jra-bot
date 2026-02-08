@@ -503,7 +503,7 @@ def main():
         picks = make_picks(r["horses"], display_scores, compressed_0_100)
         apply_tie_jitter_top5(picks, rid)
 
-        konsen = calc_konsen_from_picks(picks)
+        konsen = calc_konsen_from_picks(picks, rid)
         focus = (konsen.get("value") is not None) and (float(konsen["value"]) >= FOCUS_TH)
 
         print("[TOTAL picks]")
@@ -564,7 +564,7 @@ def main():
             picks = make_picks(r["horses"], display_scores, compressed_0_100)
             apply_tie_jitter_top5(picks, r["race_id"])
 
-            konsen = calc_konsen_from_picks(picks)
+            konsen = calc_konsen_from_picks(picks, r["race_id"])
             focus = (konsen.get("value") is not None) and (float(konsen["value"]) >= FOCUS_TH)
 
             preds.append({
