@@ -466,7 +466,7 @@ def calc_konsen_from_picks(picks: list[dict], race_id: str | None = None) -> dic
         label = "超混戦"
     elif konsen >= 60:
         label = "混戦"
-    elif konsen >= 40:
+    elif konsen >= 30:
         label = "やや混戦"
     else:
         label = "順当"
@@ -504,7 +504,7 @@ def render_predict_html(date: str, place: str, races: list[dict]) -> str:
     parts = []
     parts.append('<div style="max-width: 980px; margin: 0 auto; line-height: 1.7;">')
     parts.append(f'<h2 style="margin: 12px 0 8px; font-size: 20px; font-weight: 900;">{title}</h2>')
-    parts.append('<div style="font-size: 12px; opacity: .85; margin-bottom: 10px;">※ 指数は独自スコア（小数2桁）、混戦度は小数1桁。混戦度が高いほど「上位が拮抗」</div>')
+    parts.append('<div style="font-size: 12px; opacity: .85; margin-bottom: 10px;">※ 混戦度は指数各レースの指数から算出</div>')
 
     for r in races:
         rn = r["race_no"]
