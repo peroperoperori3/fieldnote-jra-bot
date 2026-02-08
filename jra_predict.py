@@ -13,7 +13,10 @@ UA = {
     "Accept-Language": "ja,en;q=0.8",
 }
 
-# ✅ 全開催場（JRA10場）
+# JRA 全10場
+ALL_PLACES = ["札幌","函館","福島","新潟","東京","中山","中京","京都","阪神","小倉"]
+
+# 予想JSON/HTMLのファイル名用（slug）
 TRACK_JA_TO_CODE = {
     "札幌": "sapporo",
     "函館": "hakodate",
@@ -27,8 +30,7 @@ TRACK_JA_TO_CODE = {
     "小倉": "kokura",
 }
 
-# ✅ 吉馬（中央）開催場ID（= id パラメータ）
-# 札幌=71, 函館=72, 福島=73, 新潟=74, 東京=75, 中山=76, 中京=77, 京都=78, 阪神=79, 小倉=80
+# 吉馬（中央）開催場ID（※中央は 71〜80 が割当）
 KICHIUMA_ID = {
     "札幌": 71,
     "函館": 72,
@@ -62,6 +64,10 @@ MIN_KICHI_N = int(os.environ.get("MIN_KICHI_N", "8"))   # 吉馬が少なすぎ�
 MIN_JIRO_N  = int(os.environ.get("MIN_JIRO_N",  "8"))   # jiro8が少なすぎるレースの扱い（※小頭数は自動で下げる）
 SKIP_FLAT_TOTAL = os.environ.get("SKIP_FLAT_TOTAL", "1") == "1"
 
+# ★データが無いならスキップ運用（安全）
+#  - True の場合：吉馬もjiro8も“十分”に取れないレースは丸ごとスキップ
+SKIP_IF_NO_DATA = os.environ.get("SKIP_IF_NO_DATA", "1") == "1"
+
 # ===== スコア表示レンジ（★100満点感を消す）=====
 SCORE_MIN = float(os.environ.get("SCORE_MIN", "1.0"))
 SCORE_MAX = float(os.environ.get("SCORE_MAX", "70.0"))
@@ -88,6 +94,12 @@ FLAT_MIN_COUNT  = int(os.environ.get("FLAT_MIN_COUNT", "10"))
 
 # 1レースだけ検証用
 TEST_ONE_RACE_ID = os.environ.get("TEST_ONE_RACE_ID", "").strip()  # 例: 202605010201
+
+# ★混戦度が 0.0 の違和感対策（今回の要望）
+#  - 0.0 のときだけ、1.2〜9.8 に “安定ランダム”（race_id から決まる）で置換
+KONSEN_ZERO_FIX_ENABLE = os.environ.get("KONSEN_ZERO_FIX_ENABLE", "1") == "1"
+KONSEN_ZERO_MIN = float(os.environ.get("KONSEN_ZERO_MIN", "1.2"))
+KONSEN_ZERO_MAX = float(os.environ.get("KONSEN_ZERO_MAX", "9.8"))
 
 # ==========================
 # 共通: HTTP + キャッシュ
@@ -178,8 +190,9 @@ def parse_shutuba_core(race_id: str):
         y, mo, d = m_date.group(1), int(m_date.group(2)), int(m_date.group(3))
         yyyymmdd = f"{y}{mo:02d}{d:02d}"
 
-    # ✅ 全開催場
-    m_place = re.search(r"(札幌|函館|福島|新潟|東京|中山|中京|京都|阪神|小倉)\s*(\d{1,2})R", title)
+    # ★全10場対応
+    place_pat = "(札幌|函館|福島|新潟|東京|中山|中京|京都|阪神|小倉)"
+    m_place = re.search(rf"{place_pat}\s*(\d{{1,2}})R", title)
     place = m_place.group(1) if m_place else None
     race_no = int(m_place.group(2)) if m_place else None
 
@@ -386,7 +399,7 @@ def apply_tie_jitter_top5(picks: list[dict], race_id: str) -> None:
         r01 = stable_hash_to_0_1(seed)
         jitter = r01 * max(0.0, TIE_JITTER_MAX)
         new_sc = max(SCORE_MIN, sc - jitter)
-        p["score"] = round(new_sc, 2)
+        p["score"] = round(new_sc, 2)  # ★指数は小数2桁
 
 def make_picks(horses: list[dict], total_score_scaled: dict[int, float], total_score_raw01: dict[int, float] | None = None) -> list[dict]:
     ranked = [(float(total_score_scaled.get(h["umaban"], 0.0)), h) for h in horses]
@@ -399,7 +412,7 @@ def make_picks(horses: list[dict], total_score_scaled: dict[int, float], total_s
             "mark": MARKS5[i],
             "umaban": umaban,
             "name": h["name"],
-            "score": round(float(sc), 2),  # 指数：小数2桁
+            "score": round(float(sc), 2),  # ★指数は小数2桁
             "raw_0_100": round(float(total_score_raw01.get(umaban, 0.0)), 1) if total_score_raw01 else None,
             "sp": 0.0,
             "base_index": 0.0,
@@ -412,7 +425,8 @@ def make_picks(horses: list[dict], total_score_scaled: dict[int, float], total_s
 
 def calc_konsen_from_picks(picks: list[dict], race_id: str | None = None) -> dict:
     """地方版と同じ発想：上位5頭の指数差から混戦度（差が小さいほど高い）
-       混戦度：小数1桁
+       ★混戦度は小数1桁
+       ★0.0の違和感対策：0.0なら 1.2〜9.8 に安定ランダム置換
     """
     vals = []
     for p in (picks or []):
@@ -441,13 +455,12 @@ def calc_konsen_from_picks(picks: list[dict], race_id: str | None = None) -> dic
     konsen_0_100 = max(0.0, min(100.0, konsen_0_100))
     konsen = round(konsen_0_100, 1)
 
-    # ✅ 混戦度が 0.0 の「違和感」対策：1.2〜9.8 を擬似ランダムで付与（毎回同じ）
-    if konsen == 0.0:
-        if race_id:
-            r01 = stable_hash_to_0_1("konsen0:" + str(race_id))
-        else:
-            r01 = 0.5
-        konsen = round(1.2 + r01 * (9.8 - 1.2), 1)
+    # ★今回：0.0 を 1.2〜9.8 に置換（安定ランダム）
+    if KONSEN_ZERO_FIX_ENABLE and konsen == 0.0:
+        seed = (race_id or "") + ":konsen0"
+        r01 = stable_hash_to_0_1(seed)
+        v = KONSEN_ZERO_MIN + r01 * (KONSEN_ZERO_MAX - KONSEN_ZERO_MIN)
+        konsen = round(v, 1)
 
     if konsen >= 80:
         label = "超混戦"
@@ -483,6 +496,55 @@ def build_display_scores(total_0_100: dict[int, float]) -> tuple[dict[int, float
     return display, compressed
 
 # ==========================
+# HTML（地方版っぽい簡易レイアウト）
+# ==========================
+def render_predict_html(date: str, place: str, races: list[dict]) -> str:
+    ymd = f"{date[:4]}.{date[4:6]}.{date[6:8]}"
+    title = f"{ymd} {place}競馬 予想"
+    parts = []
+    parts.append('<div style="max-width: 980px; margin: 0 auto; line-height: 1.7;">')
+    parts.append(f'<h2 style="margin: 12px 0 8px; font-size: 20px; font-weight: 900;">{title}</h2>')
+    parts.append('<div style="font-size: 12px; opacity: .85; margin-bottom: 10px;">※ 指数は独自スコア（小数2桁）、混戦度は小数1桁。混戦度が高いほど「上位が拮抗」</div>')
+
+    for r in races:
+        rn = r["race_no"]
+        rname = r["race_name"]
+        konsen = r.get("konsen", {}) or {}
+        kv = konsen.get("value")
+        kl = konsen.get("label", "")
+        focus = bool(r.get("focus"))
+        badge_focus = '<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#111827;color:#fff;font-weight:800;font-size:12px;">注目</span>' if focus else ''
+        badge_k = f'<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#eef2ff;color:#1f2937;font-weight:800;font-size:12px;">混戦度 {kv:.1f}（{kl}）</span>' if isinstance(kv, (int,float)) else ''
+
+        parts.append('<div style="margin: 16px 0 18px; padding: 12px 12px; border: 1px solid #e5e7eb; border-radius: 14px; background: #ffffff;">')
+        parts.append('<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">')
+        parts.append(f'<div style="font-size:18px;font-weight:900;color:#111827;">{rn}R {rname}</div>')
+        parts.append(f'<div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;">{badge_focus}{badge_k}</div>')
+        parts.append('</div>')
+
+        parts.append('<table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:14px;">')
+        parts.append('<thead><tr style="text-align:left;border-bottom:1px solid #e5e7eb;">'
+                     '<th style="padding:8px 6px;width:46px;">印</th>'
+                     '<th style="padding:8px 6px;width:56px;">馬番</th>'
+                     '<th style="padding:8px 6px;">馬名</th>'
+                     '<th style="padding:8px 6px;width:90px;text-align:right;">指数</th>'
+                     '</tr></thead><tbody>')
+        for p in r.get("picks", [])[:5]:
+            parts.append('<tr style="border-bottom:1px solid #f1f5f9;">'
+                         f'<td style="padding:8px 6px;font-weight:900;">{p["mark"]}</td>'
+                         f'<td style="padding:8px 6px;">{p["umaban"]}</td>'
+                         f'<td style="padding:8px 6px;">{p["name"]}</td>'
+                         f'<td style="padding:8px 6px;text-align:right;font-weight:900;">{float(p["score"]):.2f}</td>'
+                         '</tr>')
+        parts.append('</tbody></table>')
+
+        parts.append(f'<div style="margin-top:8px;font-size:12px;opacity:.85;">出典: netkeiba / 吉馬 / jiro8</div>')
+        parts.append('</div>')
+
+    parts.append('</div>')
+    return "\n".join(parts)
+
+# ==========================
 # main
 # ==========================
 def main():
@@ -497,6 +559,10 @@ def main():
         print("[TEST] one race mode:", rid)
         r = parse_shutuba_core(rid)
 
+        if r.get("place") not in TRACK_JA_TO_CODE:
+            print("[SKIP] place not detected:", r.get("place"))
+            return
+
         kichi_raw = parse_kichiuma_fp(target, r["place"], r["race_no"]) if (r["place"] in KICHIUMA_ID and r["race_no"]) else {}
         jiro_raw  = parse_jiro8_speed_by_race_id(rid)
 
@@ -506,11 +572,16 @@ def main():
         use_kichi = enough_points(len(kichi_raw), field_n, MIN_KICHI_N)
         use_jiro  = enough_points(len(jiro_raw),  field_n, MIN_JIRO_N)
 
+        if SKIP_IF_NO_DATA and (not use_kichi) and (not use_jiro):
+            print("[SKIP] no enough data (kichiuma/jiro8) -> skip race")
+            return
+
         kichi_norm = normalize_to_0_100(kichi_raw) if use_kichi else {}
         jiro_norm  = normalize_to_0_100(jiro_raw)  if use_jiro  else {}
 
         total_0_100 = combine_scores(kichi_norm, jiro_norm)
         if not total_0_100:
+            # ここは安全のために残す（ただし SKIP_IF_NO_DATA のときは基本来ない）
             total_0_100 = {h["umaban"]: 0.0 for h in r["horses"]}
 
         if SKIP_FLAT_TOTAL and is_flat_score(total_0_100, field_n):
@@ -521,13 +592,13 @@ def main():
         picks = make_picks(r["horses"], display_scores, compressed_0_100)
         apply_tie_jitter_top5(picks, rid)
 
-        konsen = calc_konsen_from_picks(picks, race_id=rid)
+        konsen = calc_konsen_from_picks(picks, rid)
         focus = (konsen.get("value") is not None) and (float(konsen["value"]) >= FOCUS_TH)
 
         print("[TOTAL picks]")
         print("konsen=", konsen, "focus=", focus, "focus_th=", FOCUS_TH)
         for p in picks:
-            print(p["mark"], p["umaban"], p["name"], p["score"], "(raw", p["raw_0_100"], ")")
+            print(p["mark"], p["umaban"], p["name"], f'{float(p["score"]):.2f}', "(raw", p["raw_0_100"], ")")
         return
 
     # ---- 通常モード ----
@@ -566,11 +637,16 @@ def main():
             use_kichi = enough_points(len(kichi_raw), field_n, MIN_KICHI_N)
             use_jiro  = enough_points(len(jiro_raw),  field_n, MIN_JIRO_N)
 
+            if SKIP_IF_NO_DATA and (not use_kichi) and (not use_jiro):
+                print(f"[SKIP] {place_ja} {r['race_no']}R no enough data -> skipped")
+                continue
+
             kichi_norm = normalize_to_0_100(kichi_raw) if use_kichi else {}
             jiro_norm  = normalize_to_0_100(jiro_raw)  if use_jiro  else {}
 
             total_0_100 = combine_scores(kichi_norm, jiro_norm)
             if not total_0_100:
+                # ここは安全のために残す（ただし SKIP_IF_NO_DATA のときは基本来ない）
                 total_0_100 = {h["umaban"]: 0.0 for h in r["horses"]}
 
             if SKIP_FLAT_TOTAL and is_flat_score(total_0_100, field_n):
@@ -581,7 +657,7 @@ def main():
             picks = make_picks(r["horses"], display_scores, compressed_0_100)
             apply_tie_jitter_top5(picks, r["race_id"])
 
-            konsen = calc_konsen_from_picks(picks, race_id=r["race_id"])
+            konsen = calc_konsen_from_picks(picks, r["race_id"])
             focus = (konsen.get("value") is not None) and (float(konsen["value"]) >= FOCUS_TH)
 
             preds.append({
@@ -607,18 +683,25 @@ def main():
                 "score_range": [SCORE_MIN, SCORE_MAX],
                 "compress": {"enable": COMPRESS_ENABLE, "width": COMPRESS_WIDTH},
                 "tie_jitter": {"enable": TIE_JITTER_ENABLE, "max": TIE_JITTER_MAX},
+                "zero_fix": {"enable": KONSEN_ZERO_FIX_ENABLE, "min": KONSEN_ZERO_MIN, "max": KONSEN_ZERO_MAX},
                 "format": {"score_decimals": 2, "konsen_decimals": 1},
             },
             "races": preds,
             "generated_at": datetime.now().isoformat(timespec="seconds"),
         }
 
+        # JSON（開催場ごと）
         path = OUTDIR / f"jra_predict_{target}_{place_ja}.json"
         path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
         print("[DONE] wrote", path)
 
-    # ✅ jra_predict_like_local_YYYYMMDD.json（まとめ）生成は「しない」
-    print("[DONE] per-place json only (no jra_predict_like_local_*.json)")
+        # HTML（開催場ごと）
+        html = render_predict_html(target, place_ja, preds)
+        path_html = OUTDIR / f"jra_predict_{target}_{place_ja}.html"
+        path_html.write_text(html, encoding="utf-8")
+        print("[DONE] wrote", path_html)
+
+    # ★要望：jra_predict_like_local_YYYYMMDD.json は作らない（削除）
 
 if __name__ == "__main__":
     main()
