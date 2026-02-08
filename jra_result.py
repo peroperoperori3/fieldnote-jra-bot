@@ -109,29 +109,36 @@ def parse_top3_umaban_from_result_table(soup: BeautifulSoup) -> list[int]:
 # ==========================
 def parse_sanrenpuku_refund_100yen(soup: BeautifulSoup) -> int:
     """
-    netkeiba 結果HTML内の払戻テーブルから「3連複」の払戻金額を拾う（100円あたり）
-    ページ構造差分に強いように、全テーブルを走査して「3連複」行を探す。
+    netkeiba 結果HTML内の払戻テーブルから
+    「3連複」の払戻金額（100円あたり）を取得する。
+    ※「3連複」という文字の "3" を誤爆しないように対策済み
     """
-    yen_pat = re.compile(r"(\d[\d,]*)")
+    yen_pat = re.compile(r"(\d[\d,]+)\s*円")
 
-    # まず “3連複” を含む行を総当たりで探す
     for tr in soup.select("tr"):
         cells = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
         if not cells:
             continue
 
-        # 行内どこかに "3連複" があるケースもあるので、全セル走査
+        # この行が3連複の行か？
         if not any("3連複" in c for c in cells):
             continue
 
-        # 払戻はたいてい同じ行の後ろ側セルに入るので、最初に取れた数字を採用
+        # 「円」が付いているセルだけを対象にする
+        pays = []
         for c in cells:
+            if "円" not in c:
+                continue
             m = yen_pat.search(c)
             if m:
                 try:
-                    return int(m.group(1).replace(",", ""))
+                    pays.append(int(m.group(1).replace(",", "")))
                 except:
                     pass
+
+        # 一番大きい数字を採用（保険）
+        if pays:
+            return max(pays)
 
     return 0
 
