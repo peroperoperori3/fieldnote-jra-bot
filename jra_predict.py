@@ -602,23 +602,7 @@ def main():
 
         all_races.extend(preds)
 
-    out_all = {
-        "date": target,
-        "konsen": {
-            "gap12_mid": KONSEN_GAP12_MID,
-            "gap15_mid": KONSEN_GAP15_MID,
-            "focus_th": FOCUS_TH,
-            "score_range": [SCORE_MIN, SCORE_MAX],
-            "compress": {"enable": COMPRESS_ENABLE, "width": COMPRESS_WIDTH},
-            "tie_jitter": {"enable": TIE_JITTER_ENABLE, "max": TIE_JITTER_MAX},
-            "format": {"score_decimals": 2, "konsen_decimals": 1},
-        },
-        "races": all_races,
-        "generated_at": datetime.now().isoformat(timespec="seconds"),
-    }
-    path_all = OUTDIR / f"jra_predict_like_local_{target}.json"
-    path_all.write_text(json.dumps(out_all, ensure_ascii=False, indent=2), encoding="utf-8")
-    print("[DONE] wrote", path_all)
+)
 
 if __name__ == "__main__":
     main()
