@@ -38,5 +38,62 @@
       "last_updated": "2026-02-08T07:28:33"
     }
   },
-  "last_updated": "2026-02-08T07:28:33"
+  "last_updated": "2026-02-08T07:28:33",
+  "updated_at": "2026-02-08T13:27:11",
+  "history": [
+    {
+      "date": "20260125",
+      "invest": 11000,
+      "payout": 9,
+      "profit": -10991,
+      "bet_races": 11,
+      "hit": 3,
+      "hit_rate": 27.3,
+      "roi": 0.1,
+      "pred_focus_races": 11,
+      "pred_focus_by_place": {
+        "中山": 4,
+        "京都": 4,
+        "小倉": 3
+      }
+    }
+  ],
+  "total": {
+    "invest": 11000,
+    "payout": 9,
+    "profit": -10991,
+    "bet_races": 11,
+    "hit": 3,
+    "hit_rate": 27.3,
+    "roi": 0.1
+  },
+  "by_place": {
+    "中山": {
+      "invest": 4000,
+      "payout": 6,
+      "profit": -3994,
+      "bet_races": 4,
+      "hit": 2,
+      "hit_rate": 50.0,
+      "roi": 0.1
+    },
+    "京都": {
+      "invest": 4000,
+      "payout": 3,
+      "profit": -3997,
+      "bet_races": 4,
+      "hit": 1,
+      "hit_rate": 25.0,
+      "roi": 0.1
+    },
+    "小倉": {
+      "invest": 3000,
+      "payout": 0,
+      "profit": -3000,
+      "bet_races": 3,
+      "hit": 0,
+      "hit_rate": 0.0,
+      "roi": 0.0
+    }
+  }
 }
