@@ -1,0 +1,376 @@
+{
+  "date": "20260201",
+  "place": "小倉",
+  "title": "2026.02.01 小倉競馬 結果",
+  "bet": {
+    "enable": true,
+    "unit": 100,
+    "box_n": 5,
+    "focus_only": true,
+    "focus_th": 30.0
+  },
+  "summary": {
+    "invest": 7000,
+    "payout": 7160,
+    "profit": 160,
+    "races_bet": 7,
+    "hits": 1,
+    "pred_races": 11,
+    "pred_hits": 1
+  },
+  "races": [
+    {
+      "race_id": "202610010401",
+      "race_no": 1,
+      "race_name": "3歳未勝利",
+      "konsen": {
+        "value": 79.4,
+        "label": "混戦",
+        "gap12": 0.12,
+        "gap15": 0.73
+      },
+      "focus": true,
+      "pred_top5": [
+        16,
+        3,
+        8,
+        15,
+        9
+      ],
+      "result_top3": [
+        16,
+        3,
+        14
+      ],
+      "sanrenpuku_100yen": 2140,
+      "bet": 1000,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010401"
+      }
+    },
+    {
+      "race_id": "202610010402",
+      "race_no": 2,
+      "race_name": "3歳未勝利",
+      "konsen": {
+        "value": 23.0,
+        "label": "順当",
+        "gap12": 0.81,
+        "gap15": 1.85
+      },
+      "focus": false,
+      "pred_top5": [
+        1,
+        13,
+        14,
+        8,
+        16
+      ],
+      "result_top3": [
+        3,
+        16,
+        8
+      ],
+      "sanrenpuku_100yen": 1360,
+      "bet": 0,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010402"
+      }
+    },
+    {
+      "race_id": "202610010403",
+      "race_no": 3,
+      "race_name": "4歳以上1勝クラス",
+      "konsen": {
+        "value": 3.2,
+        "label": "順当",
+        "gap12": 1.05,
+        "gap15": 9.57
+      },
+      "focus": false,
+      "pred_top5": [
+        5,
+        10,
+        2,
+        8,
+        3
+      ],
+      "result_top3": [
+        6,
+        12,
+        4
+      ],
+      "sanrenpuku_100yen": 419950,
+      "bet": 0,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010403"
+      }
+    },
+    {
+      "race_id": "202610010404",
+      "race_no": 4,
+      "race_name": "4歳以上障害未勝利",
+      "konsen": {
+        "value": 15.0,
+        "label": "順当",
+        "gap12": 0.5,
+        "gap15": 8.01
+      },
+      "focus": false,
+      "pred_top5": [
+        8,
+        1,
+        3,
+        9,
+        12
+      ],
+      "result_top3": [
+        9,
+        11,
+        5
+      ],
+      "sanrenpuku_100yen": 13540,
+      "bet": 0,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010404"
+      }
+    },
+    {
+      "race_id": "202610010406",
+      "race_no": 6,
+      "race_name": "3歳未勝利",
+      "konsen": {
+        "value": 74.1,
+        "label": "混戦",
+        "gap12": 0.25,
+        "gap15": 0.67
+      },
+      "focus": true,
+      "pred_top5": [
+        14,
+        1,
+        4,
+        15,
+        17
+      ],
+      "result_top3": [
+        1,
+        15,
+        2
+      ],
+      "sanrenpuku_100yen": 13010,
+      "bet": 1000,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010406"
+      }
+    },
+    {
+      "race_id": "202610010407",
+      "race_no": 7,
+      "race_name": "4歳以上1勝クラス",
+      "konsen": {
+        "value": 51.4,
+        "label": "やや混戦",
+        "gap12": 0.6,
+        "gap15": 0.93
+      },
+      "focus": true,
+      "pred_top5": [
+        8,
+        5,
+        10,
+        14,
+        1
+      ],
+      "result_top3": [
+        15,
+        4,
+        1
+      ],
+      "sanrenpuku_100yen": 45060,
+      "bet": 1000,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010407"
+      }
+    },
+    {
+      "race_id": "202610010408",
+      "race_no": 8,
+      "race_name": "4歳以上1勝クラス",
+      "konsen": {
+        "value": 37.5,
+        "label": "順当",
+        "gap12": 0.05,
+        "gap15": 6.64
+      },
+      "focus": true,
+      "pred_top5": [
+        2,
+        1,
+        6,
+        5,
+        13
+      ],
+      "result_top3": [
+        10,
+        3,
+        5
+      ],
+      "sanrenpuku_100yen": 4850,
+      "bet": 1000,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010408"
+      }
+    },
+    {
+      "race_id": "202610010409",
+      "race_no": 9,
+      "race_name": "足立山特別(1勝クラス)",
+      "konsen": {
+        "value": 6.5,
+        "label": "順当",
+        "gap12": 2.68,
+        "gap15": 14.17
+      },
+      "focus": false,
+      "pred_top5": [
+        3,
+        10,
+        9,
+        1,
+        5
+      ],
+      "result_top3": [
+        9,
+        6,
+        3
+      ],
+      "sanrenpuku_100yen": 6160,
+      "bet": 0,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010409"
+      }
+    },
+    {
+      "race_id": "202610010410",
+      "race_no": 10,
+      "race_name": "周防灘特別(2勝クラス)",
+      "konsen": {
+        "value": 78.7,
+        "label": "混戦",
+        "gap12": 0.19,
+        "gap15": 0.59
+      },
+      "focus": true,
+      "pred_top5": [
+        3,
+        13,
+        9,
+        2,
+        10
+      ],
+      "result_top3": [
+        3,
+        12,
+        2
+      ],
+      "sanrenpuku_100yen": 7170,
+      "bet": 1000,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010410"
+      }
+    },
+    {
+      "race_id": "202610010411",
+      "race_no": 11,
+      "race_name": "門司Ｓ(OP)",
+      "konsen": {
+        "value": 60.2,
+        "label": "混戦",
+        "gap12": 0.1,
+        "gap15": 1.74
+      },
+      "focus": true,
+      "pred_top5": [
+        11,
+        13,
+        6,
+        3,
+        12
+      ],
+      "result_top3": [
+        6,
+        13,
+        3
+      ],
+      "sanrenpuku_100yen": 7160,
+      "bet": 1000,
+      "pay": 7160,
+      "hit": true,
+      "pred_hit": true,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010411"
+      }
+    },
+    {
+      "race_id": "202610010412",
+      "race_no": 12,
+      "race_name": "4歳以上1勝クラス",
+      "konsen": {
+        "value": 65.8,
+        "label": "混戦",
+        "gap12": 0.26,
+        "gap15": 1.06
+      },
+      "focus": true,
+      "pred_top5": [
+        14,
+        4,
+        9,
+        12,
+        1
+      ],
+      "result_top3": [
+        10,
+        16,
+        18
+      ],
+      "sanrenpuku_100yen": 14840,
+      "bet": 1000,
+      "pay": 0,
+      "hit": false,
+      "pred_hit": false,
+      "url": {
+        "result": "https://race.netkeiba.com/race/result.html?race_id=202610010412"
+      }
+    }
+  ],
+  "generated_at": "2026-02-08T07:22:42"
+}
