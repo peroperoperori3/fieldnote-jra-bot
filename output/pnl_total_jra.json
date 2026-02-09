@@ -1,0 +1,20 @@
+{
+  "invest": 6000,
+  "payout": 30890,
+  "profit": 24890,
+  "races": 6,
+  "hits": 2,
+  "hit_rate": 33.3,
+  "roi": 514.8,
+  "last_updated": "2026-02-09T22:26:48",
+  "pred_races": 10,
+  "pred_hits": 3,
+  "pred_hit_rate": 30.0,
+  "pred_by_place": {
+    "小倉": {
+      "races": 10,
+      "hits": 3,
+      "hit_rate": 30.0
+    }
+  }
+}
