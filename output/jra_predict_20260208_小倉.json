@@ -112,13 +112,13 @@
         }
       ],
       "konsen": {
-        "value": 7.0,
-        "label": "順当",
+        "value": 30.9,
+        "label": "やや混戦",
         "gap12": 3.49,
         "gap15": 9.94
       },
-      "focus": false,
-      "focus_score": 7.0,
+      "focus": true,
+      "focus_score": 30.9,
       "meta": {
         "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202610010601"
       }
