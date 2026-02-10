@@ -1,0 +1,1068 @@
+{
+  "date": "20260210",
+  "place": "京都",
+  "title": "2026.02.10 京都競馬 予想",
+  "konsen": {
+    "gap12_mid": 0.8,
+    "gap15_mid": 3.0,
+    "focus_th": 30.0,
+    "score_range": [
+      1.0,
+      70.0
+    ],
+    "compress": {
+      "enable": true,
+      "width": 18.0
+    },
+    "tie_jitter": {
+      "enable": true,
+      "max": 0.2
+    },
+    "zero_fix": {
+      "enable": true,
+      "min": 1.2,
+      "max": 9.8
+    },
+    "format": {
+      "score_decimals": 2,
+      "konsen_decimals": 1
+    }
+  },
+  "races": [
+    {
+      "race_id": "202608020401",
+      "place": "京都",
+      "race_no": 1,
+      "race_name": "3歳未勝利",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 9,
+          "name": "ガーリッシュ",
+          "score": 69.52,
+          "raw_0_100": 99.3,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "幸",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020401"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 16,
+          "name": "スリーコーズ",
+          "score": 69.13,
+          "raw_0_100": 98.7,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "川田",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020401"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 8,
+          "name": "クロノレガリス",
+          "score": 69.0,
+          "raw_0_100": 98.6,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "荻野極",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020401"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 14,
+          "name": "プレデンシア",
+          "score": 68.23,
+          "raw_0_100": 97.4,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "北村友",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020401"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 13,
+          "name": "アドフランマム",
+          "score": 66.28,
+          "raw_0_100": 94.6,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "太宰",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020401"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 20.5,
+        "label": "順当",
+        "gap12": 0.39,
+        "gap15": 3.24
+      },
+      "focus": false,
+      "focus_score": 20.5,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020401"
+      }
+    },
+    {
+      "race_id": "202608020402",
+      "place": "京都",
+      "race_no": 2,
+      "race_name": "3歳未勝利",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 9,
+          "name": "ワンダフルデイズ",
+          "score": 69.73,
+          "raw_0_100": 99.6,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "ハマーハン",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020402"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 6,
+          "name": "マテンロウアワー",
+          "score": 64.52,
+          "raw_0_100": 92.1,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "松山",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020402"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 5,
+          "name": "ポッドジーク",
+          "score": 63.78,
+          "raw_0_100": 91.0,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "吉村",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020402"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 1,
+          "name": "アンリミテッド",
+          "score": 60.4,
+          "raw_0_100": 86.1,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "西村淳",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020402"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 3,
+          "name": "ウインデイブレイク",
+          "score": 53.03,
+          "raw_0_100": 75.4,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "藤懸",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020402"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 8.4,
+        "label": "順当",
+        "gap12": 5.21,
+        "gap15": 16.7
+      },
+      "focus": false,
+      "focus_score": 8.4,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020402"
+      }
+    },
+    {
+      "race_id": "202608020403",
+      "place": "京都",
+      "race_no": 3,
+      "race_name": "3歳未勝利",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 9,
+          "name": "アーガイルショア",
+          "score": 69.69,
+          "raw_0_100": 99.5,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "横山和",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020403"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 8,
+          "name": "リピ",
+          "score": 68.03,
+          "raw_0_100": 97.1,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "松山",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020403"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 13,
+          "name": "カーリキュー",
+          "score": 66.23,
+          "raw_0_100": 94.5,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "川田",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020403"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 1,
+          "name": "キャスケード",
+          "score": 61.94,
+          "raw_0_100": 88.3,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "団野",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020403"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 4,
+          "name": "アンティスマ",
+          "score": 57.95,
+          "raw_0_100": 82.5,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "太宰",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020403"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 1.7,
+        "label": "順当",
+        "gap12": 1.66,
+        "gap15": 11.74
+      },
+      "focus": false,
+      "focus_score": 1.7,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020403"
+      }
+    },
+    {
+      "race_id": "202608020404",
+      "place": "京都",
+      "race_no": 4,
+      "race_name": "4歳以上1勝クラス",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 7,
+          "name": "ルクスフレンジー",
+          "score": 69.71,
+          "raw_0_100": 99.6,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "酒井",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020404"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 9,
+          "name": "ハイクオリティ",
+          "score": 68.45,
+          "raw_0_100": 97.8,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "荻野極",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020404"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 6,
+          "name": "ビービーバザーク",
+          "score": 68.12,
+          "raw_0_100": 97.3,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "太宰",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020404"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 5,
+          "name": "フランキーバローズ",
+          "score": 67.96,
+          "raw_0_100": 97.0,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "団野",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020404"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 1,
+          "name": "エイユーファイヤー",
+          "score": 60.14,
+          "raw_0_100": 85.7,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "松山",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020404"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 1.6,
+        "label": "順当",
+        "gap12": 1.26,
+        "gap15": 9.57
+      },
+      "focus": false,
+      "focus_score": 1.6,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020404"
+      }
+    },
+    {
+      "race_id": "202608020406",
+      "place": "京都",
+      "race_no": 6,
+      "race_name": "3歳未勝利",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 9,
+          "name": "ビクスバイト",
+          "score": 69.73,
+          "raw_0_100": 99.6,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "川田",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020406"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 1,
+          "name": "ヴィラジョヴィス",
+          "score": 69.25,
+          "raw_0_100": 98.9,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "北村友",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020406"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 7,
+          "name": "トレセデオロ",
+          "score": 68.94,
+          "raw_0_100": 98.5,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "荻野極",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020406"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 5,
+          "name": "スクランプシャス",
+          "score": 68.38,
+          "raw_0_100": 97.7,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "西村淳",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020406"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 11,
+          "name": "ダディーズソード",
+          "score": 67.92,
+          "raw_0_100": 97.0,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "幸",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020406"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 39.8,
+        "label": "やや混戦",
+        "gap12": 0.48,
+        "gap15": 1.81
+      },
+      "focus": true,
+      "focus_score": 39.8,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020406"
+      }
+    },
+    {
+      "race_id": "202608020407",
+      "place": "京都",
+      "race_no": 7,
+      "race_name": "4歳以上1勝クラス",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 6,
+          "name": "デルマサクラサク",
+          "score": 69.73,
+          "raw_0_100": 99.6,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "森田",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020407"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 7,
+          "name": "アリストクラシア",
+          "score": 67.8,
+          "raw_0_100": 96.8,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "西村淳",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020407"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 3,
+          "name": "アイブリンク",
+          "score": 67.3,
+          "raw_0_100": 96.1,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "松山",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020407"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 5,
+          "name": "オリジナルファイン",
+          "score": 65.83,
+          "raw_0_100": 94.0,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "吉村",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020407"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 4,
+          "name": "サンコンクエスト",
+          "score": 61.31,
+          "raw_0_100": 87.4,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "幸",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020407"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 1.4,
+        "label": "順当",
+        "gap12": 1.93,
+        "gap15": 8.42
+      },
+      "focus": false,
+      "focus_score": 1.4,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020407"
+      }
+    },
+    {
+      "race_id": "202608020408",
+      "place": "京都",
+      "race_no": 8,
+      "race_name": "4歳以上2勝クラス",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 10,
+          "name": "エクストラバック",
+          "score": 69.23,
+          "raw_0_100": 98.9,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "幸",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020408"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 5,
+          "name": "ルシード",
+          "score": 69.12,
+          "raw_0_100": 98.7,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "北村友",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020408"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 7,
+          "name": "マリノトニトゥルス",
+          "score": 64.96,
+          "raw_0_100": 92.7,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "ハマーハン",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020408"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 6,
+          "name": "トーセントラム",
+          "score": 64.7,
+          "raw_0_100": 92.3,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "荻野極",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020408"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 11,
+          "name": "モーデン",
+          "score": 58.18,
+          "raw_0_100": 82.9,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "荻野琢",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020408"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 34.5,
+        "label": "やや混戦",
+        "gap12": 0.11,
+        "gap15": 11.05
+      },
+      "focus": true,
+      "focus_score": 34.5,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020408"
+      }
+    },
+    {
+      "race_id": "202608020409",
+      "place": "京都",
+      "race_no": 9,
+      "race_name": "石清水ステークス(3勝クラス)",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 4,
+          "name": "コルレオニス",
+          "score": 69.48,
+          "raw_0_100": 99.2,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "ハマーハン",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020409"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 8,
+          "name": "アイルシャイン",
+          "score": 69.46,
+          "raw_0_100": 99.2,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "田口",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020409"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 3,
+          "name": "メタルスピード",
+          "score": 69.42,
+          "raw_0_100": 99.2,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "吉村",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020409"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 6,
+          "name": "スイープアワーズ",
+          "score": 68.7,
+          "raw_0_100": 98.1,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "幸",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020409"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 5,
+          "name": "フライングブレード",
+          "score": 65.87,
+          "raw_0_100": 94.0,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "浜中",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020409"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 39.0,
+        "label": "やや混戦",
+        "gap12": 0.02,
+        "gap15": 3.61
+      },
+      "focus": true,
+      "focus_score": 39.0,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020409"
+      }
+    },
+    {
+      "race_id": "202608020410",
+      "place": "京都",
+      "race_no": 10,
+      "race_name": "大和ステークス(OP)",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 2,
+          "name": "ロジアデレード",
+          "score": 69.7,
+          "raw_0_100": 99.6,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "浜中",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020410"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 3,
+          "name": "ファムエレガンテ",
+          "score": 68.93,
+          "raw_0_100": 98.5,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "松山",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020410"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 12,
+          "name": "スマートフォルス",
+          "score": 68.6,
+          "raw_0_100": 98.0,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "ハマーハン",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020410"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 4,
+          "name": "エスカル",
+          "score": 68.28,
+          "raw_0_100": 97.5,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "横山和",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020410"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 13,
+          "name": "アガシ",
+          "score": 65.93,
+          "raw_0_100": 94.1,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "田口",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020410"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 1.5,
+        "label": "順当",
+        "gap12": 0.77,
+        "gap15": 3.77
+      },
+      "focus": false,
+      "focus_score": 1.5,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020410"
+      }
+    },
+    {
+      "race_id": "202608020411",
+      "place": "京都",
+      "race_no": 11,
+      "race_name": "きさらぎ賞(G3)",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 1,
+          "name": "ゾロアストロ",
+          "score": 69.73,
+          "raw_0_100": 99.6,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "ハマーハン",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020411"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 5,
+          "name": "ストームゲイル",
+          "score": 69.61,
+          "raw_0_100": 99.4,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "吉村",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020411"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 2,
+          "name": "エムズビギン",
+          "score": 68.34,
+          "raw_0_100": 97.6,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "川田",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020411"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 4,
+          "name": "ゴーイントゥスカイ",
+          "score": 67.01,
+          "raw_0_100": 95.7,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "荻野極",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020411"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 9,
+          "name": "ローベルクランツ",
+          "score": 65.34,
+          "raw_0_100": 93.2,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "松山",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020411"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 34.0,
+        "label": "やや混戦",
+        "gap12": 0.12,
+        "gap15": 4.39
+      },
+      "focus": true,
+      "focus_score": 34.0,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020411"
+      }
+    },
+    {
+      "race_id": "202608020412",
+      "place": "京都",
+      "race_no": 12,
+      "race_name": "4歳以上2勝クラス",
+      "picks": [
+        {
+          "mark": "◎",
+          "umaban": 1,
+          "name": "ヨシノヤッタルデー",
+          "score": 69.62,
+          "raw_0_100": 99.4,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "川端",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020412"
+          }
+        },
+        {
+          "mark": "〇",
+          "umaban": 5,
+          "name": "アメリカンチケット",
+          "score": 69.46,
+          "raw_0_100": 99.2,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "松山",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020412"
+          }
+        },
+        {
+          "mark": "▲",
+          "umaban": 9,
+          "name": "サンライズプルート",
+          "score": 69.15,
+          "raw_0_100": 98.8,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "池添",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020412"
+          }
+        },
+        {
+          "mark": "△",
+          "umaban": 16,
+          "name": "ビッグドリーム",
+          "score": 67.97,
+          "raw_0_100": 97.1,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "幸",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020412"
+          }
+        },
+        {
+          "mark": "☆",
+          "umaban": 6,
+          "name": "ヴリトラハン",
+          "score": 65.23,
+          "raw_0_100": 93.1,
+          "sp": 0.0,
+          "base_index": 0.0,
+          "jockey": "川田",
+          "jockey_add": 0.0,
+          "z": {},
+          "source": {
+            "netkeiba_shutuba_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020412"
+          }
+        }
+      ],
+      "konsen": {
+        "value": 32.0,
+        "label": "やや混戦",
+        "gap12": 0.16,
+        "gap15": 4.39
+      },
+      "focus": true,
+      "focus_score": 32.0,
+      "meta": {
+        "url_netkeiba": "https://race.netkeiba.com/race/shutuba.html?race_id=202608020412"
+      }
+    }
+  ],
+  "generated_at": "2026-02-10T15:20:34"
+}
