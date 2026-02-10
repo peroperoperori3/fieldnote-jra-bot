@@ -1,17 +1,22 @@
 {
-  "invest": 6000,
-  "payout": 30890,
-  "profit": 24890,
-  "races": 6,
+  "invest": 7000,
+  "payout": 2150,
+  "profit": -4850,
+  "races": 7,
   "hits": 2,
-  "hit_rate": 33.3,
-  "roi": 514.8,
-  "last_updated": "2026-02-09T22:26:48",
-  "pred_races": 10,
-  "pred_hits": 3,
-  "pred_hit_rate": 30.0,
+  "hit_rate": 28.6,
+  "roi": 30.7,
+  "last_updated": "2026-02-10T15:32:08",
+  "pred_races": 21,
+  "pred_hits": 7,
+  "pred_hit_rate": 33.3,
   "pred_by_place": {
-    "小倉": {
+    "京都": {
+      "races": 11,
+      "hits": 4,
+      "hit_rate": 36.4
+    },
+    "東京": {
       "races": 10,
       "hits": 3,
       "hit_rate": 30.0
