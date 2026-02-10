@@ -220,7 +220,6 @@ def build_result_html_jra(data: dict) -> str:
 
     races = data.get("races") or []
     pnl = data.get("pnl_summary") or {}
-    last_updated = data.get("last_updated", "")
 
     out = wrap_start(title)
 
