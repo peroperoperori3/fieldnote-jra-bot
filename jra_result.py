@@ -1,7 +1,9 @@
 # jra_result.py
 # 目的：JRA（netkeiba）結果ページから
 #  - 各開催場の result_jra_YYYYMMDD_<場名>.json を生成
-#  - トータル集計 pnl_total_jra.json を（地方版 pnl_total.json と同形式で）生成
+#  - 日別トータル pnl_total_jra_YYYYMMDD.json を生成（地方版 pnl_total.json と同形式）
+#  - 最新日別 pnl_total_jra.json を生成（上書き）
+#  - 累積トータル pnl_total_jra_cum.json を生成（積み上げ、同日再実行は差し替え）
 #
 # 入力：output/jra_predict_YYYYMMDD_*.json（予想側が生成）
 #
@@ -80,6 +82,17 @@ def comb_count(n: int, r: int) -> int:
     if n < r:
         return 0
     return math.comb(n, r)
+
+def load_json_safe(path: Path, default: Any) -> Any:
+    try:
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8", errors="ignore"))
+    except Exception as e:
+        _debug(f"[WARN] load_json_safe failed: {path} {e}")
+    return default
+
+def write_json(path: Path, obj: Any) -> None:
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
 
 # ==========================
 # HTTP / decode
@@ -230,7 +243,7 @@ def load_pred_files(date: str) -> List[Path]:
     return sorted(OUTDIR.glob(f"jra_predict_{date}_*.json"))
 
 def load_pred(path: Path) -> Dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(path.read_text(encoding="utf-8", errors="ignore"))
 
 def pick_top5_from_pred_race(r: Dict[str, Any]) -> List[Dict[str, Any]]:
     picks = r.get("picks") or []
@@ -281,6 +294,138 @@ def calc_box_payout(unit: int, sanrenpuku_payout_100: int) -> int:
     return int(round(sanrenpuku_payout_100 * (unit / 100.0)))
 
 # ==========================
+# cumulative total
+# ==========================
+def empty_total_template() -> Dict[str, Any]:
+    return {
+        "invest": 0,
+        "payout": 0,
+        "profit": 0,
+        "races": 0,
+        "hits": 0,
+        "hit_rate": 0.0,
+        "roi": 0.0,
+        "last_updated": "",
+        "pred_races": 0,
+        "pred_hits": 0,
+        "pred_hit_rate": 0.0,
+        "pred_by_place": {},  # {place:{races,hits,hit_rate}}
+    }
+
+def recompute_rates(total: Dict[str, Any]) -> None:
+    inv = as_int(total.get("invest"), 0)
+    pay = as_int(total.get("payout"), 0)
+    races = as_int(total.get("races"), 0)
+    hits = as_int(total.get("hits"), 0)
+    pr = as_int(total.get("pred_races"), 0)
+    ph = as_int(total.get("pred_hits"), 0)
+
+    total["profit"] = pay - inv
+    total["roi"] = round((pay / inv * 100.0) if inv > 0 else 0.0, 1)
+    total["hit_rate"] = round((hits / races * 100.0) if races > 0 else 0.0, 1)
+    total["pred_hit_rate"] = round((ph / pr * 100.0) if pr > 0 else 0.0, 1)
+
+    pbp = total.get("pred_by_place") or {}
+    if isinstance(pbp, dict):
+        for plc, v in pbp.items():
+            if not isinstance(v, dict):
+                continue
+            r = as_int(v.get("races"), 0)
+            h = as_int(v.get("hits"), 0)
+            v["hit_rate"] = round((h / r * 100.0) if r > 0 else 0.0, 1)
+
+def apply_delta_place(dst_by_place: Dict[str, Any], src_by_place: Dict[str, Any], sign: int) -> None:
+    # sign=+1 add, sign=-1 subtract
+    for plc, v in (src_by_place or {}).items():
+        if not isinstance(v, dict):
+            continue
+        dst = dst_by_place.setdefault(plc, {"races": 0, "hits": 0, "hit_rate": 0.0})
+        dst["races"] = as_int(dst.get("races"), 0) + sign * as_int(v.get("races"), 0)
+        dst["hits"]  = as_int(dst.get("hits"), 0) + sign * as_int(v.get("hits"), 0)
+        # マイナス防止
+        if dst["races"] < 0: dst["races"] = 0
+        if dst["hits"] < 0: dst["hits"] = 0
+
+def update_cumulative(cum_path: Path, day_total: Dict[str, Any], date_key: str, now_iso: str) -> Dict[str, Any]:
+    """
+    累積は pnl_total_jra_cum.json に保存。
+    同じ DATE を回し直した場合は、以前の day を差し引いてから新しい day を加算（=差し替え）。
+    """
+    cum = load_json_safe(cum_path, {})
+    if not isinstance(cum, dict):
+        cum = {}
+
+    # cum 本体（合計）
+    cum_total = cum.get("total")
+    if not isinstance(cum_total, dict):
+        cum_total = empty_total_template()
+
+    # 日別履歴（差し替え用）
+    days = cum.get("days")
+    if not isinstance(days, dict):
+        days = {}
+
+    # 既存の同日があれば差し引き
+    old = days.get(date_key)
+    if isinstance(old, dict):
+        cum_total["invest"] = as_int(cum_total.get("invest"), 0) - as_int(old.get("invest"), 0)
+        cum_total["payout"] = as_int(cum_total.get("payout"), 0) - as_int(old.get("payout"), 0)
+        cum_total["races"]  = as_int(cum_total.get("races"), 0)  - as_int(old.get("races"), 0)
+        cum_total["hits"]   = as_int(cum_total.get("hits"), 0)   - as_int(old.get("hits"), 0)
+
+        cum_total["pred_races"] = as_int(cum_total.get("pred_races"), 0) - as_int(old.get("pred_races"), 0)
+        cum_total["pred_hits"]  = as_int(cum_total.get("pred_hits"), 0)  - as_int(old.get("pred_hits"), 0)
+
+        cum_total.setdefault("pred_by_place", {})
+        apply_delta_place(cum_total["pred_by_place"], old.get("pred_by_place") or {}, sign=-1)
+
+        # マイナス防止
+        for k in ["invest", "payout", "races", "hits", "pred_races", "pred_hits"]:
+            if as_int(cum_total.get(k), 0) < 0:
+                cum_total[k] = 0
+
+    # 新しい日別を加算
+    cum_total["invest"] = as_int(cum_total.get("invest"), 0) + as_int(day_total.get("invest"), 0)
+    cum_total["payout"] = as_int(cum_total.get("payout"), 0) + as_int(day_total.get("payout"), 0)
+    cum_total["races"]  = as_int(cum_total.get("races"), 0)  + as_int(day_total.get("races"), 0)
+    cum_total["hits"]   = as_int(cum_total.get("hits"), 0)   + as_int(day_total.get("hits"), 0)
+
+    cum_total["pred_races"] = as_int(cum_total.get("pred_races"), 0) + as_int(day_total.get("pred_races"), 0)
+    cum_total["pred_hits"]  = as_int(cum_total.get("pred_hits"), 0)  + as_int(day_total.get("pred_hits"), 0)
+
+    cum_total.setdefault("pred_by_place", {})
+    apply_delta_place(cum_total["pred_by_place"], day_total.get("pred_by_place") or {}, sign=+1)
+
+    cum_total["last_updated"] = now_iso
+    recompute_rates(cum_total)
+
+    # days を更新（差し替え用に日別totalを保持）
+    # ※ day_total はコンパクトにする（必要最小限）
+    days[date_key] = {
+        "invest": as_int(day_total.get("invest"), 0),
+        "payout": as_int(day_total.get("payout"), 0),
+        "profit": as_int(day_total.get("profit"), 0),
+        "races": as_int(day_total.get("races"), 0),
+        "hits": as_int(day_total.get("hits"), 0),
+        "hit_rate": as_float(day_total.get("hit_rate"), 0.0),
+        "roi": as_float(day_total.get("roi"), 0.0),
+        "last_updated": day_total.get("last_updated", ""),
+        "pred_races": as_int(day_total.get("pred_races"), 0),
+        "pred_hits": as_int(day_total.get("pred_hits"), 0),
+        "pred_hit_rate": as_float(day_total.get("pred_hit_rate"), 0.0),
+        "pred_by_place": day_total.get("pred_by_place") or {},
+    }
+
+    # 保存
+    out = {
+        "version": 1,
+        "total": cum_total,
+        "days": days,
+    }
+    write_json(cum_path, out)
+    return out
+
+# ==========================
 # main
 # ==========================
 def main() -> None:
@@ -298,13 +443,13 @@ def main() -> None:
         print("[WARN] prediction files not found. Nothing to do.", flush=True)
         return
 
-    # 404対策：英語版じゃなく日本版 race_list を叩く
+    # 404対策：英語版じゃなく日本版 race_list を叩く（失敗しても続行）
     try:
         _ = fetch_race_list(DATE)
     except Exception as e:
         print(f"[WARN] fetch_race_list failed (still continue): {e}", flush=True)
 
-    # トータル（地方版 pnl_total.json 互換）
+    # トータル（日別）
     total_focus_invest = 0
     total_focus_payout = 0
     total_focus_races = 0
@@ -363,7 +508,6 @@ def main() -> None:
             hit = False
 
             if do_bet:
-                # pred_top5の数が5未満のケースにも安全に合わせる
                 use_n = min(BOX_N, max(0, len(pred_top5)))
                 invest = calc_box_invest(BET_UNIT, use_n)
                 focus_invest += invest
@@ -422,7 +566,7 @@ def main() -> None:
         }
 
         out_path = OUTDIR / f"result_jra_{DATE}_{place}.json"
-        out_path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+        write_json(out_path, out)
         print(f"[OK] wrote {out_path}", flush=True)
 
         total_focus_invest += focus_invest
@@ -442,7 +586,10 @@ def main() -> None:
 
     pred_hit_rate = (total_pred_hits / total_pred_races * 100.0) if total_pred_races > 0 else 0.0
 
-    total_json = {
+    # ==========================
+    # 日別 total（この日だけ）
+    # ==========================
+    day_total = {
         "invest": total_focus_invest,
         "payout": total_focus_payout,
         "profit": total_profit,
@@ -458,9 +605,31 @@ def main() -> None:
         "pred_by_place": pred_by_place,
     }
 
-    total_path = OUTDIR / "pnl_total_jra.json"
-    total_path.write_text(json.dumps(total_json, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[OK] wrote {total_path}", flush=True)
+    # 保存：日別履歴（消えない）
+    day_path_hist = OUTDIR / f"pnl_total_jra_{DATE}.json"
+    write_json(day_path_hist, day_total)
+    print(f"[OK] wrote {day_path_hist}", flush=True)
+
+    # 保存：最新（日別の別名・上書きOK）
+    day_path_latest = OUTDIR / "pnl_total_jra.json"
+    write_json(day_path_latest, day_total)
+    print(f"[OK] wrote {day_path_latest}", flush=True)
+
+    # ==========================
+    # 累積 total（積み上げ）
+    # - 同じDATE再実行は差し替え（2重加算しない）
+    # ==========================
+    cum_path = OUTDIR / "pnl_total_jra_cum.json"
+    cum_obj = update_cumulative(cum_path, day_total, DATE, now_iso)
+    print(f"[OK] wrote {cum_path} (cumulative)", flush=True)
+
+    # 参考：累積の中身を軽くログ
+    try:
+        t = cum_obj.get("total", {})
+        print(f"[INFO] CUM invest={t.get('invest')} payout={t.get('payout')} profit={t.get('profit')} "
+              f"races={t.get('races')} hits={t.get('hits')} roi={t.get('roi')} hit_rate={t.get('hit_rate')}", flush=True)
+    except Exception:
+        pass
 
 
 if __name__ == "__main__":
