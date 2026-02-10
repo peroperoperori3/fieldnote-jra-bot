@@ -244,8 +244,6 @@ def build_result_html_jra(data: dict) -> str:
         out.append(badge(f"的中率 {hit_rate:.1f}%（{hits}/{focus_races}）", "gray"))
         out.append(badge(f"投資 {fmt_yen(invest)} / 払戻 {fmt_yen(payout)}", "blue"))
         out.append('</div>')
-        if last_updated:
-            out.append(f'<div style="margin-top:8px;color:rgba(255,255,255,0.70);font-size:12px;">最終更新：{html_escape(last_updated)}</div>')
         out.append('</div>')
 
     if not races:
