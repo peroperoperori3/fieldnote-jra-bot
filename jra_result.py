@@ -4,6 +4,7 @@
 #  - 日別トータル pnl_total_jra_YYYYMMDD.json を生成（地方版 pnl_total.json と同形式）
 #  - 最新日別 pnl_total_jra.json を生成（上書き）
 #  - 累積トータル pnl_total_jra_cum.json を生成（積み上げ、同日再実行は差し替え）
+#  - ★追加：latest_jra_result.json を生成（上書き、{date:YYYYMMDD}）
 #
 # 入力：output/jra_predict_YYYYMMDD_*.json（予想側が生成）
 #
@@ -400,7 +401,6 @@ def update_cumulative(cum_path: Path, day_total: Dict[str, Any], date_key: str, 
     recompute_rates(cum_total)
 
     # days を更新（差し替え用に日別totalを保持）
-    # ※ day_total はコンパクトにする（必要最小限）
     days[date_key] = {
         "invest": as_int(day_total.get("invest"), 0),
         "payout": as_int(day_total.get("payout"), 0),
@@ -416,7 +416,6 @@ def update_cumulative(cum_path: Path, day_total: Dict[str, Any], date_key: str, 
         "pred_by_place": day_total.get("pred_by_place") or {},
     }
 
-    # 保存
     out = {
         "version": 1,
         "total": cum_total,
@@ -455,11 +454,14 @@ def main() -> None:
     total_focus_races = 0
     total_focus_hits = 0
 
+    # ★pred_* は「結果TOP3が取れたレース」だけ集計する（安全）
     total_pred_races = 0
     total_pred_hits = 0
     pred_by_place: Dict[str, Dict[str, Any]] = {}
 
     now_iso = datetime.utcnow().replace(microsecond=0).isoformat()
+
+    wrote_any_place = False  # ★latest用
 
     for pf in pred_files:
         pred = load_pred(pf)
@@ -519,15 +521,16 @@ def main() -> None:
                     focus_hits += 1
                     hit = True
 
-            # 全体的中率（pred_hit）は「結果が取れたレース」で数える
-            total_pred_races += 1
-            if pred_hit:
-                total_pred_hits += 1
+            # ★全体的中率（pred_hit）は「結果が取れたレース」で数える
+            if isinstance(result_top3, list) and len(result_top3) >= 3:
+                total_pred_races += 1
+                if pred_hit:
+                    total_pred_hits += 1
 
-            pred_by_place.setdefault(place, {"races": 0, "hits": 0, "hit_rate": 0.0})
-            pred_by_place[place]["races"] += 1
-            if pred_hit:
-                pred_by_place[place]["hits"] += 1
+                pred_by_place.setdefault(place, {"races": 0, "hits": 0, "hit_rate": 0.0})
+                pred_by_place[place]["races"] += 1
+                if pred_hit:
+                    pred_by_place[place]["hits"] += 1
 
             races_out.append({
                 "race_no": race_no,
@@ -568,6 +571,7 @@ def main() -> None:
         out_path = OUTDIR / f"result_jra_{DATE}_{place}.json"
         write_json(out_path, out)
         print(f"[OK] wrote {out_path}", flush=True)
+        wrote_any_place = True
 
         total_focus_invest += focus_invest
         total_focus_payout += focus_payout
@@ -622,6 +626,14 @@ def main() -> None:
     cum_path = OUTDIR / "pnl_total_jra_cum.json"
     cum_obj = update_cumulative(cum_path, day_total, DATE, now_iso)
     print(f"[OK] wrote {cum_path} (cumulative)", flush=True)
+
+    # ★追加：latest_jra_result.json（トップやJSが読む用）
+    if wrote_any_place:
+        latest_path = OUTDIR / "latest_jra_result.json"
+        write_json(latest_path, {"date": DATE})
+        print(f"[OK] wrote {latest_path} ({DATE})", flush=True)
+    else:
+        print("[INFO] no place output written -> latest_jra_result.json not updated", flush=True)
 
     # 参考：累積の中身を軽くログ
     try:
