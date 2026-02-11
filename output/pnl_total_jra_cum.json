@@ -1,19 +1,29 @@
 {
   "version": 1,
   "total": {
-    "invest": 6000,
-    "payout": 30890,
-    "profit": 24890,
-    "races": 6,
-    "hits": 2,
-    "hit_rate": 33.3,
-    "roi": 514.8,
-    "last_updated": "2026-02-11T00:40:11",
-    "pred_races": 10,
-    "pred_hits": 3,
-    "pred_hit_rate": 30.0,
+    "invest": 13000,
+    "payout": 33040,
+    "profit": 20040,
+    "races": 13,
+    "hits": 4,
+    "hit_rate": 30.8,
+    "roi": 254.2,
+    "last_updated": "2026-02-11T00:49:13",
+    "pred_races": 31,
+    "pred_hits": 10,
+    "pred_hit_rate": 32.3,
     "pred_by_place": {
       "小倉": {
+        "races": 10,
+        "hits": 3,
+        "hit_rate": 30.0
+      },
+      "京都": {
+        "races": 11,
+        "hits": 4,
+        "hit_rate": 36.4
+      },
+      "東京": {
         "races": 10,
         "hits": 3,
         "hit_rate": 30.0
@@ -35,6 +45,31 @@
       "pred_hit_rate": 30.0,
       "pred_by_place": {
         "小倉": {
+          "races": 10,
+          "hits": 3,
+          "hit_rate": 30.0
+        }
+      }
+    },
+    "20260210": {
+      "invest": 7000,
+      "payout": 2150,
+      "profit": -4850,
+      "races": 7,
+      "hits": 2,
+      "hit_rate": 28.6,
+      "roi": 30.7,
+      "last_updated": "2026-02-11T00:49:13",
+      "pred_races": 21,
+      "pred_hits": 7,
+      "pred_hit_rate": 33.3,
+      "pred_by_place": {
+        "京都": {
+          "races": 11,
+          "hits": 4,
+          "hit_rate": 36.4
+        },
+        "東京": {
           "races": 10,
           "hits": 3,
           "hit_rate": 30.0
