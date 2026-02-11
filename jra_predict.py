@@ -552,6 +552,9 @@ def main():
         print("[ERR] set env KAISAI_DATE like 20260201")
         return
 
+    # ★追加：1つでもJSON書けたら latest を更新する
+    wrote_any = False
+
     # ---- 1レースだけ検証モード ----
     if TEST_ONE_RACE_ID:
         rid = TEST_ONE_RACE_ID
@@ -580,7 +583,6 @@ def main():
 
         total_0_100 = combine_scores(kichi_norm, jiro_norm)
         if not total_0_100:
-            # ここは安全のために残す（ただし SKIP_IF_NO_DATA のときは基本来ない）
             total_0_100 = {h["umaban"]: 0.0 for h in r["horses"]}
 
         if SKIP_FLAT_TOTAL and is_flat_score(total_0_100, field_n):
@@ -645,7 +647,6 @@ def main():
 
             total_0_100 = combine_scores(kichi_norm, jiro_norm)
             if not total_0_100:
-                # ここは安全のために残す（ただし SKIP_IF_NO_DATA のときは基本来ない）
                 total_0_100 = {h["umaban"]: 0.0 for h in r["horses"]}
 
             if SKIP_FLAT_TOTAL and is_flat_score(total_0_100, field_n):
@@ -693,6 +694,7 @@ def main():
         path = OUTDIR / f"jra_predict_{target}_{place_ja}.json"
         path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
         print("[DONE] wrote", path)
+        wrote_any = True  # ★追加
 
         # HTML（開催場ごと）
         html = render_predict_html(target, place_ja, preds)
@@ -701,6 +703,18 @@ def main():
         print("[DONE] wrote", path_html)
 
     # ★要望：jra_predict_like_local_YYYYMMDD.json は作らない（削除）
+
+    # ==========================
+    # ★LATEST: 中央予想の最新日付を保存
+    # ==========================
+    if wrote_any:
+        (OUTDIR / "latest_jra_predict.json").write_text(
+            json.dumps({"date": target}, ensure_ascii=False),
+            encoding="utf-8"
+        )
+        print(f"[DONE] wrote {OUTDIR/'latest_jra_predict.json'} ({target})")
+    else:
+        print("[INFO] no output written -> latest_jra_predict.json not updated")
 
 if __name__ == "__main__":
     main()
