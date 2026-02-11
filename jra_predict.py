@@ -504,7 +504,7 @@ def render_predict_html(date: str, place: str, races: list[dict]) -> str:
     parts = []
     parts.append('<div style="max-width: 980px; margin: 0 auto; line-height: 1.7;">')
     parts.append(f'<h2 style="margin: 12px 0 8px; font-size: 20px; font-weight: 900;">{title}</h2>')
-    parts.append('<div style="font-size: 12px; opacity: .85; margin-bottom: 10px;">※ 混戦度は指数各レースの指数から算出</div>')
+    parts.append('<div style="font-size: 12px; opacity: .85; margin-bottom: 10px;">※ 混戦度は各レースの指数から算出</div>')
 
     for r in races:
         rn = r["race_no"]
