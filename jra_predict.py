@@ -538,7 +538,6 @@ def render_predict_html(date: str, place: str, races: list[dict]) -> str:
                          '</tr>')
         parts.append('</tbody></table>')
 
-        parts.append(f'<div style="margin-top:8px;font-size:12px;opacity:.85;">出典: netkeiba / 吉馬 / jiro8</div>')
         parts.append('</div>')
 
     parts.append('</div>')
