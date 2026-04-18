@@ -1,0 +1,881 @@
+{
+  "date": "20260418",
+  "place": "福島",
+  "title": "2026.04.18 福島競馬 予想",
+  "races": [
+    {
+      "race_no": 1,
+      "race_name": "3歳未勝利",
+      "race_id": "202603010301",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 9,
+          "name": "マクアケ",
+          "score": 69.65
+        },
+        {
+          "mark": "〇",
+          "umaban": 1,
+          "name": "サノノキャニオン",
+          "score": 69.58
+        },
+        {
+          "mark": "▲",
+          "umaban": 14,
+          "name": "メイショウイブキ",
+          "score": 65.73
+        },
+        {
+          "mark": "△",
+          "umaban": 13,
+          "name": "シビルガード",
+          "score": 65.35
+        },
+        {
+          "mark": "☆",
+          "umaban": 16,
+          "name": "フェルアフリーゼ",
+          "score": 63.18
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 14,
+          "name": "メイショウイブキ"
+        },
+        {
+          "rank": 2,
+          "umaban": 2,
+          "name": "サンライズロイ"
+        },
+        {
+          "rank": 3,
+          "umaban": 15,
+          "name": "リアアーテシアン"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "2-14-15",
+        "payout": 26240
+      },
+      "pred_hit": false,
+      "focus": true,
+      "bet": {
+        "enabled": true,
+        "invest": 1000,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 36.5,
+        "label": "やや混戦",
+        "gap12": 0.07,
+        "gap15": 6.47
+      }
+    },
+    {
+      "race_no": 2,
+      "race_name": "3歳未勝利",
+      "race_id": "202603010302",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 13,
+          "name": "カドドゥディエ",
+          "score": 69.63
+        },
+        {
+          "mark": "〇",
+          "umaban": 6,
+          "name": "ブライトエアリー",
+          "score": 68.54
+        },
+        {
+          "mark": "▲",
+          "umaban": 4,
+          "name": "カルダモン",
+          "score": 67.91
+        },
+        {
+          "mark": "△",
+          "umaban": 5,
+          "name": "キャリアビジョン",
+          "score": 67.21
+        },
+        {
+          "mark": "☆",
+          "umaban": 10,
+          "name": "ウインポーシャ",
+          "score": 54.23
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 14,
+          "name": "ララオウ"
+        },
+        {
+          "rank": 2,
+          "umaban": 10,
+          "name": "ウインポーシャ"
+        },
+        {
+          "rank": 3,
+          "umaban": 3,
+          "name": "ソニックブーム"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "3-10-14",
+        "payout": 30620
+      },
+      "pred_hit": false,
+      "focus": false,
+      "bet": {
+        "enabled": false,
+        "invest": 0,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 2.5,
+        "label": "順当",
+        "gap12": 1.09,
+        "gap15": 15.4
+      }
+    },
+    {
+      "race_no": 3,
+      "race_name": "3歳未勝利",
+      "race_id": "202603010303",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 6,
+          "name": "タイガーロード",
+          "score": 69.73
+        },
+        {
+          "mark": "〇",
+          "umaban": 13,
+          "name": "ニシノタチアナ",
+          "score": 69.32
+        },
+        {
+          "mark": "▲",
+          "umaban": 15,
+          "name": "マイネルユーゲント",
+          "score": 62.19
+        },
+        {
+          "mark": "△",
+          "umaban": 8,
+          "name": "ディサイドオンミー",
+          "score": 62.16
+        },
+        {
+          "mark": "☆",
+          "umaban": 10,
+          "name": "メイケイシャイン",
+          "score": 51.63
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 16,
+          "name": "アイアムステキ"
+        },
+        {
+          "rank": 2,
+          "umaban": 13,
+          "name": "ニシノタチアナ"
+        },
+        {
+          "rank": 3,
+          "umaban": 6,
+          "name": "タイガーロード"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "6-13-16",
+        "payout": 2440
+      },
+      "pred_hit": false,
+      "focus": false,
+      "bet": {
+        "enabled": false,
+        "invest": 0,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 19.5,
+        "label": "順当",
+        "gap12": 0.41,
+        "gap15": 18.1
+      }
+    },
+    {
+      "race_no": 4,
+      "race_name": "3歳未勝利",
+      "race_id": "202603010304",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 12,
+          "name": "エタンセル",
+          "score": 69.56
+        },
+        {
+          "mark": "〇",
+          "umaban": 5,
+          "name": "ホウオウモチーヴ",
+          "score": 67.08
+        },
+        {
+          "mark": "▲",
+          "umaban": 10,
+          "name": "ボールドタワー",
+          "score": 66.91
+        },
+        {
+          "mark": "△",
+          "umaban": 7,
+          "name": "ブロンザイト",
+          "score": 62.87
+        },
+        {
+          "mark": "☆",
+          "umaban": 8,
+          "name": "メイショウタイザン",
+          "score": 62.75
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 9,
+          "name": "アンティーム"
+        },
+        {
+          "rank": 2,
+          "umaban": 12,
+          "name": "エタンセル"
+        },
+        {
+          "rank": 3,
+          "umaban": 10,
+          "name": "ボールドタワー"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "9-10-12",
+        "payout": 5110
+      },
+      "pred_hit": false,
+      "focus": false,
+      "bet": {
+        "enabled": false,
+        "invest": 0,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 2.5,
+        "label": "順当",
+        "gap12": 2.48,
+        "gap15": 6.81
+      }
+    },
+    {
+      "race_no": 5,
+      "race_name": "3歳未勝利",
+      "race_id": "202603010305",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 3,
+          "name": "ミリオングローリー",
+          "score": 69.66
+        },
+        {
+          "mark": "〇",
+          "umaban": 8,
+          "name": "イーサンミラー",
+          "score": 69.64
+        },
+        {
+          "mark": "▲",
+          "umaban": 7,
+          "name": "ウインマニフィーク",
+          "score": 68.37
+        },
+        {
+          "mark": "△",
+          "umaban": 4,
+          "name": "ウインリフレクト",
+          "score": 67.29
+        },
+        {
+          "mark": "☆",
+          "umaban": 14,
+          "name": "ブランドブラン",
+          "score": 64.36
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 14,
+          "name": "ブランドブラン"
+        },
+        {
+          "rank": 2,
+          "umaban": 7,
+          "name": "ウインマニフィーク"
+        },
+        {
+          "rank": 3,
+          "umaban": 1,
+          "name": "モンロワイヤル"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "1-7-14",
+        "payout": 1110
+      },
+      "pred_hit": false,
+      "focus": true,
+      "bet": {
+        "enabled": true,
+        "invest": 1000,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 39.0,
+        "label": "やや混戦",
+        "gap12": 0.02,
+        "gap15": 5.3
+      }
+    },
+    {
+      "race_no": 6,
+      "race_name": "3歳未勝利",
+      "race_id": "202603010306",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 9,
+          "name": "ジャケットポケット",
+          "score": 69.73
+        },
+        {
+          "mark": "〇",
+          "umaban": 2,
+          "name": "ベルトラッキ",
+          "score": 68.36
+        },
+        {
+          "mark": "▲",
+          "umaban": 10,
+          "name": "ゴールデンダガー",
+          "score": 66.56
+        },
+        {
+          "mark": "△",
+          "umaban": 4,
+          "name": "ラヴズプレミアム",
+          "score": 61.33
+        },
+        {
+          "mark": "☆",
+          "umaban": 12,
+          "name": "バルドル",
+          "score": 57.99
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 12,
+          "name": "バルドル"
+        },
+        {
+          "rank": 2,
+          "umaban": 2,
+          "name": "ベルトラッキ"
+        },
+        {
+          "rank": 3,
+          "umaban": 6,
+          "name": "ドナディクオーレ"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "2-6-12",
+        "payout": 21050
+      },
+      "pred_hit": false,
+      "focus": false,
+      "bet": {
+        "enabled": false,
+        "invest": 0,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 6.0,
+        "label": "順当",
+        "gap12": 1.37,
+        "gap15": 11.74
+      }
+    },
+    {
+      "race_no": 7,
+      "race_name": "4歳以上1勝クラス",
+      "race_id": "202603010307",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 8,
+          "name": "キャリーグレイス",
+          "score": 69.73
+        },
+        {
+          "mark": "〇",
+          "umaban": 3,
+          "name": "ペイシャマリーン",
+          "score": 69.66
+        },
+        {
+          "mark": "▲",
+          "umaban": 1,
+          "name": "プルミエールパス",
+          "score": 68.88
+        },
+        {
+          "mark": "△",
+          "umaban": 14,
+          "name": "フラッシュポイント",
+          "score": 68.76
+        },
+        {
+          "mark": "☆",
+          "umaban": 10,
+          "name": "ナムラペルル",
+          "score": 67.36
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 2,
+          "name": "ホーリーブライト"
+        },
+        {
+          "rank": 2,
+          "umaban": 8,
+          "name": "キャリーグレイス"
+        },
+        {
+          "rank": 3,
+          "umaban": 1,
+          "name": "プルミエールパス"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "1-2-8",
+        "payout": 5940
+      },
+      "pred_hit": false,
+      "focus": true,
+      "bet": {
+        "enabled": true,
+        "invest": 1000,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 49.1,
+        "label": "やや混戦",
+        "gap12": 0.07,
+        "gap15": 2.37
+      }
+    },
+    {
+      "race_no": 8,
+      "race_name": "4歳以上1勝クラス",
+      "race_id": "202603010308",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 12,
+          "name": "リアルフォルゴーレ",
+          "score": 69.65
+        },
+        {
+          "mark": "〇",
+          "umaban": 5,
+          "name": "ララエキリーブル",
+          "score": 69.56
+        },
+        {
+          "mark": "▲",
+          "umaban": 8,
+          "name": "ハイクオリティ",
+          "score": 69.5
+        },
+        {
+          "mark": "△",
+          "umaban": 2,
+          "name": "メイショウクーガー",
+          "score": 69.46
+        },
+        {
+          "mark": "☆",
+          "umaban": 3,
+          "name": "ヤングアメリカンズ",
+          "score": 69.37
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 2,
+          "name": "メイショウクーガー"
+        },
+        {
+          "rank": 2,
+          "umaban": 8,
+          "name": "ハイクオリティ"
+        },
+        {
+          "rank": 3,
+          "umaban": 5,
+          "name": "ララエキリーブル"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "2-5-8",
+        "payout": 2450
+      },
+      "pred_hit": true,
+      "focus": true,
+      "bet": {
+        "enabled": true,
+        "invest": 1000,
+        "payout": 2450,
+        "hit": true
+      },
+      "konsen": {
+        "value": 89.9,
+        "label": "超混戦",
+        "gap12": 0.09,
+        "gap15": 0.28
+      }
+    },
+    {
+      "race_no": 9,
+      "race_name": "ひめさゆり賞(1勝クラス)",
+      "race_id": "202603010309",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 6,
+          "name": "マイネルシンベリン",
+          "score": 69.73
+        },
+        {
+          "mark": "〇",
+          "umaban": 5,
+          "name": "キンググローリー",
+          "score": 69.42
+        },
+        {
+          "mark": "▲",
+          "umaban": 2,
+          "name": "マカナアネラ",
+          "score": 62.59
+        },
+        {
+          "mark": "△",
+          "umaban": 9,
+          "name": "ノーウェアマン",
+          "score": 56.53
+        },
+        {
+          "mark": "☆",
+          "umaban": 4,
+          "name": "サイモンシャリオ",
+          "score": 54.66
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 5,
+          "name": "キンググローリー"
+        },
+        {
+          "rank": 2,
+          "umaban": 2,
+          "name": "マカナアネラ"
+        },
+        {
+          "rank": 3,
+          "umaban": 4,
+          "name": "サイモンシャリオ"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "2-4-5",
+        "payout": 9780
+      },
+      "pred_hit": true,
+      "focus": false,
+      "bet": {
+        "enabled": false,
+        "invest": 0,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 24.5,
+        "label": "順当",
+        "gap12": 0.31,
+        "gap15": 15.07
+      }
+    },
+    {
+      "race_no": 10,
+      "race_name": "桑折特別(1勝クラス)",
+      "race_id": "202603010310",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 7,
+          "name": "ウアーシュプルング",
+          "score": 69.72
+        },
+        {
+          "mark": "〇",
+          "umaban": 1,
+          "name": "マーゴットレジーナ",
+          "score": 69.2
+        },
+        {
+          "mark": "▲",
+          "umaban": 4,
+          "name": "ムーンストラック",
+          "score": 69.06
+        },
+        {
+          "mark": "△",
+          "umaban": 6,
+          "name": "シェーラ",
+          "score": 68.46
+        },
+        {
+          "mark": "☆",
+          "umaban": 2,
+          "name": "ルールーリマ",
+          "score": 64.67
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 8,
+          "name": "フィオレストラーダ"
+        },
+        {
+          "rank": 2,
+          "umaban": 2,
+          "name": "ルールーリマ"
+        },
+        {
+          "rank": 3,
+          "umaban": 3,
+          "name": "メリザンド"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "2-3-8",
+        "payout": 4190
+      },
+      "pred_hit": false,
+      "focus": false,
+      "bet": {
+        "enabled": false,
+        "invest": 0,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 14.0,
+        "label": "順当",
+        "gap12": 0.52,
+        "gap15": 5.05
+      }
+    },
+    {
+      "race_no": 11,
+      "race_name": "ラジオ福島賞(2勝クラス)",
+      "race_id": "202603010311",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 8,
+          "name": "メイショウカシワデ",
+          "score": 68.52
+        },
+        {
+          "mark": "〇",
+          "umaban": 2,
+          "name": "モレポブラーノ",
+          "score": 66.69
+        },
+        {
+          "mark": "▲",
+          "umaban": 13,
+          "name": "ラマンシュ",
+          "score": 58.41
+        },
+        {
+          "mark": "△",
+          "umaban": 11,
+          "name": "レッドライトニング",
+          "score": 41.02
+        },
+        {
+          "mark": "☆",
+          "umaban": 7,
+          "name": "シーニックビュー",
+          "score": 34.94
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 8,
+          "name": "メイショウカシワデ"
+        },
+        {
+          "rank": 2,
+          "umaban": 11,
+          "name": "レッドライトニング"
+        },
+        {
+          "rank": 3,
+          "umaban": 3,
+          "name": "ホウショウマリス"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "3-8-11",
+        "payout": 7690
+      },
+      "pred_hit": false,
+      "focus": false,
+      "bet": {
+        "enabled": false,
+        "invest": 0,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 3.8,
+        "label": "順当",
+        "gap12": 1.83,
+        "gap15": 33.58
+      }
+    },
+    {
+      "race_no": 12,
+      "race_name": "4歳以上1勝クラス",
+      "race_id": "202603010312",
+      "pred_top5": [
+        {
+          "mark": "◎",
+          "umaban": 12,
+          "name": "ザカリナン",
+          "score": 69.73
+        },
+        {
+          "mark": "〇",
+          "umaban": 5,
+          "name": "ベルファスト",
+          "score": 69.25
+        },
+        {
+          "mark": "▲",
+          "umaban": 14,
+          "name": "セディバン",
+          "score": 61.24
+        },
+        {
+          "mark": "△",
+          "umaban": 15,
+          "name": "ウィンストン",
+          "score": 56.88
+        },
+        {
+          "mark": "☆",
+          "umaban": 6,
+          "name": "ブラックティンカー",
+          "score": 56.61
+        }
+      ],
+      "result_top3": [
+        {
+          "rank": 1,
+          "umaban": 15,
+          "name": "ウィンストン"
+        },
+        {
+          "rank": 2,
+          "umaban": 5,
+          "name": "ベルファスト"
+        },
+        {
+          "rank": 3,
+          "umaban": 13,
+          "name": "ジーティーエスピ"
+        }
+      ],
+      "sanrenpuku": {
+        "combo": "5-13-15",
+        "payout": 1890
+      },
+      "pred_hit": false,
+      "focus": false,
+      "bet": {
+        "enabled": false,
+        "invest": 0,
+        "payout": 0,
+        "hit": false
+      },
+      "konsen": {
+        "value": 16.0,
+        "label": "順当",
+        "gap12": 0.48,
+        "gap15": 13.12
+      }
+    }
+  ],
+  "pnl_summary": {
+    "invest": 4000,
+    "payout": 2450,
+    "profit": -1550,
+    "roi": 61.3,
+    "hits": 1,
+    "focus_races": 4,
+    "hit_rate": 25.0
+  },
+  "last_updated": "2026-04-18T15:37:35"
+}
